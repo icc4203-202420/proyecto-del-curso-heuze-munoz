@@ -1,0 +1,105 @@
+require 'securerandom'
+require 'faker'
+
+include FactoryBot::Syntax::Methods
+FactoryBot.define do
+  factory :address do
+    line1 { Faker::Address.street_address }
+    line2 { Faker::Address.secondary_address }
+    city { Faker::Address.city }
+    country { Country.all.to_a.sample }
+    user
+  end
+
+  factory :country do
+    name { Faker::Address.unique.country }
+    factory :country_with_breweries_with_brands_with_beers do 
+        transient do 
+            brewery_count { rand(1..3) }
+        end
+
+        after(:create) do |country, evaluator|
+          create_list(:brewery_with_brands_with_beers, 
+            evaluator.brewery_count, countries: [country])
+          country.reload
+        end
+    end
+  end
+
+  factory :brewery do
+    name { Faker::Company.name }
+    estdate { Faker::Number.between(from: 1580, to: 1990) }
+    
+    before(:create) do |brewery|
+      brewery.countries = []
+      brewery.countries << Country.order(Arel.sql('RANDOM()')).limit(rand(1..3))
+    end
+
+    factory :brewery_with_brands_with_beers do
+      transient do 
+        brand_count { rand(1..3) }
+      end
+      after(:create) do |brewery, evaluator|
+        create_list(:brand_with_beers, evaluator.brand_count, brewery: brewery)
+      end
+    end
+  end
+
+  factory :user do
+    first_name { Faker::Name.first_name }
+    last_name { Faker::Name.last_name }
+    password { '12345678' }
+    password_confirmation { password }
+    age { rand(18..120) }
+    
+    email { Faker::Internet.email(name: "#{first_name} #{last_name}") }
+    
+    before(:create) do |user|
+      user.address ||= build(:address, user: user)
+    end
+  end
+
+  factory :brand do
+    name { Faker::Beer.brand }
+
+    factory :brand_with_beers do
+      transient do 
+        beer_count { rand(1..3) }
+      end
+
+      after(:create) do |brand, evaluator|
+        create_list(:beer, evaluator.beer_count, brand: brand)
+      end
+    end
+  end
+
+  factory :beer do
+    brand
+    name { Faker::Beer.name }
+    style { Faker::Beer.style }
+    hop { Faker::Beer.hop }
+    yeast { Faker::Beer.yeast }
+    malts { Faker::Beer.malts }
+    ibu { Faker::Beer.ibu }
+    alcohol { Faker::Beer.alcohol }
+    blg { Faker::Beer.blg }
+
+    factory :beer_with_reviews do
+      transient do
+        review_count { Faker::Number.normal(mean: 50, standard_deviation: 12.5).to_i }
+      end
+
+      after(:create) do |beer, evaluator|
+        create_list(:review, evaluator.review_count, beer: beer)
+      end
+    end
+  end
+
+  factory :review do
+    beer { Beer.find_in_batches.to_a.sample.sample }
+    text { Faker::ChuckNorris.fact }
+    rating { 1.step(by: 0.5, to: 5).to_a.sample }
+    user { User.find_in_batches.to_a.sample.sample }
+  end
+
+end

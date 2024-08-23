@@ -1,0 +1,62 @@
+# Ignore bundler config.
+/.bundle
+
+# Ignore SQLite database files
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Ignore all logfiles and tempfiles.
+/log/*.log
+/tmp
+
+# Ignore other unneeded files.
+# database.yml
+secrets.yml
+/config/credentials/*.yml.enc
+.DS_Store
+
+# Ignore node_modules
+/node_modules/
+
+# Ignore precompiled assets in development
+/public/assets/
+
+# Ignore master key for encrypting credentials and more.
+/config/master.key
+
+# Ignore pid files, but keep the directory
+/tmp/pids/
+!/tmp/pids/
+/tmp/pids/*.pid
+
+# Ignore cache files
+/tmp/cache/
+!/tmp/cache/
+/tmp/cache/*
+
+# Ignore sockets
+/tmp/sockets/
+!/tmp/sockets/
+/tmp/sockets/*.socket
+
+# Ignore uploads stored locally in development
+/storage/*
+!/storage/.keep
+
+/public/uploads
+
+# Ignore test, spec, and cypress artifacts
+/tmp/test/
+/tmp/spec/
+/tmp/cypress/
+
+# Ignore .byebug_history
+.byebug_history
+
+/config/credentials/development.key
+
+/config/credentials/test.key
+
+/config/credentials/production.key
+
+/config/credentials/developmentls.key
