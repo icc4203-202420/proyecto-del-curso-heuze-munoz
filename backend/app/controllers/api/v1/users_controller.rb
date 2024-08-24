@@ -34,11 +34,18 @@ class API::V1::UsersController < ApplicationController
   end
 
   def create_friendship
-    @friend = User.find_by(id: params[:friend_id])
-    if @friend && @user.friendships.create(friend: @friend)
-      render json: { message: "Friendship created successfully" }, status: :created
+    @user = User.find(params[:id])
+    friend = User.find(params[:friend_id])
+    
+    # Puedes ajustar este valor según tu lógica de negocio
+    bar_id = params[:bar_id] || default_bar_id # Proporciona un valor adecuado para bar_id
+  
+    friendship = Friendship.new(user_id: @user.id, friend_id: friend.id, bar_id: bar_id)
+  
+    if friendship.save
+      render json: { message: 'Friendship created successfully.' }, status: :ok
     else
-      render json: { error: "Unable to create friendship" }, status: :unprocessable_entity
+      render json: friendship.errors, status: :unprocessable_entity
     end
   end
 
