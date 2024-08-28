@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import Beer from '@mui/icons-material/SportsBar';
+import { Link } from 'react-router-dom';
+import SportsBarIcon from '@mui/icons-material/SportsBar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EventIcon from '@mui/icons-material/Event';
 
@@ -23,19 +24,19 @@ function MainCard() {
         }}
       >
         <List>
-          <ListItem button>
+          <ListItem button component={Link} to="/cervezas">
             <ListItemIcon>
-              <Beer />
+              <SportsBarIcon />
             </ListItemIcon>
             <ListItemText primary="Cervezas" />
           </ListItem>
-          <ListItem button>
+          <ListItem button component={Link} to="/bares">
             <ListItemIcon>
               <MenuBookIcon />
             </ListItemIcon>
             <ListItemText primary="Bares" />
           </ListItem>
-          <ListItem button>
+          <ListItem button component={Link} to="/eventos">
             <ListItemIcon>
               <EventIcon />
             </ListItemIcon>
