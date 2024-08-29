@@ -1,25 +1,34 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import TopBar from './components/TopBar'; // Import your AppBar component here
-import BotNav from './components/BotNav'; // Import your BottomNav component here
-import MainCard from './components/MainCard'; // Import your CenteredCard component here
+import TopBar from './components/TopBar';
+import BotNav from './components/BotNav';
+import MainCard from './components/MainCard';
 import Beers from './pages/Beers';
 import Bars from './pages/Bars';
-import Events from './pages/Events';
-import Users from './pages/Users'
+import BarsEvents from './pages/BarsEvents';
+import Users from './pages/Users';
+
 function App() {
   return (
     <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <TopBar />
-        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Routes>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            paddingTop: '64px', // Ajusta al tamaño de TopBar
+            paddingBottom: '56px', // Ajusta al tamaño de BotNav
+          }}
+        >
+          <Routes>
             <Route path="/" element={<MainCard />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/eventos" element={<Events />} />
-            <Route path="/cervezas" element={<Beers />} />
-            <Route path="/bares" element={<Bars />} />            
+            <Route path="/beers" element={<Beers />} />
+            <Route path="/bars" element={<Bars />} />
+            <Route path="/bars/:barId/events" element={<BarsEvents />} />
           </Routes>
         </Box>
         <BotNav />

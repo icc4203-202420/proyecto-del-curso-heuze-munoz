@@ -8,23 +8,20 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 export default function TopBar() {
   return (
-    <Box sx={{ flexGrow: 1 , colour: "purple"}}>
-      <AppBar position="fixed" sx={{ bgcolor: '#6A0DAD' }}>
-        <Toolbar sx = {{paddingLeft:'16px', paddingRight:'16px'}}>
-          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: 'left' }}>
-            BeerBuddy
-          </Typography>
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="settings"
-          >
-            <SettingsIcon />
-          </IconButton>          
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <AppBar position="fixed" sx={{ bgcolor: '#6A0DAD', height: '64px' }}>
+      <Toolbar sx={{ paddingLeft: '16px', paddingRight: '16px' }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          BeerBuddy
+        </Typography>
+        <IconButton
+          size="large"
+          edge="end"
+          color="inherit"
+          aria-label="settings"
+        >
+          <SettingsIcon />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
   );
 }
-

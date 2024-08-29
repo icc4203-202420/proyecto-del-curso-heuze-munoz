@@ -1,19 +1,19 @@
 import React from 'react';
-import { Paper, Typography, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Paper, Typography, List, ListItem, ListItemIcon, ListItemText, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import EventIcon from '@mui/icons-material/Event';
-import PersonIcon from '@mui/icons-material/Person'
+import PersonIcon from '@mui/icons-material/Person';
 
 function MainCard() {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',  // Ensures the container takes the full height of the viewport
+        paddingTop: '64px', // Adjusts to the size of the TopBar
+        width: '100vw'    // Ensures the container takes the full width of the viewport
       }}
     >
       <Paper
@@ -25,33 +25,27 @@ function MainCard() {
         }}
       >
         <List>
-        <ListItem button component={Link} to="/users">
+          <ListItem button component={Link} to="/users">
             <ListItemIcon>
               <PersonIcon />
             </ListItemIcon>
             <ListItemText primary="Users" />
           </ListItem>
-          <ListItem button component={Link} to="/cervezas">
+          <ListItem button component={Link} to="/beers">
             <ListItemIcon>
               <SportsBarIcon />
             </ListItemIcon>
-            <ListItemText primary="Cervezas" />
+            <ListItemText primary="Beers" />
           </ListItem>
-          <ListItem button component={Link} to="/bares">
+          <ListItem button component={Link} to="/bars">
             <ListItemIcon>
               <MenuBookIcon />
             </ListItemIcon>
-            <ListItemText primary="Bares" />
-          </ListItem>
-          <ListItem button component={Link} to="/eventos">
-            <ListItemIcon>
-              <EventIcon />
-            </ListItemIcon>
-            <ListItemText primary="Eventos" />
+            <ListItemText primary="Bars" />
           </ListItem>
         </List>
       </Paper>
-    </div>
+    </Box>
   );
 }
 
