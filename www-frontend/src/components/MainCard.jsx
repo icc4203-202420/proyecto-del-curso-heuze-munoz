@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EventIcon from '@mui/icons-material/Event';
+import PersonIcon from '@mui/icons-material/Person'
 
 function MainCard() {
   return (
@@ -24,6 +25,12 @@ function MainCard() {
         }}
       >
         <List>
+        <ListItem button component={Link} to="/users">
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText primary="Users" />
+          </ListItem>
           <ListItem button component={Link} to="/cervezas">
             <ListItemIcon>
               <SportsBarIcon />

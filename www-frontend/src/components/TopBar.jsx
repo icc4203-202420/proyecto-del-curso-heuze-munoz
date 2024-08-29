@@ -21,8 +21,7 @@ export default function TopBar() {
             aria-label="settings"
           >
             <SettingsIcon />
-          </IconButton>
-          
+          </IconButton>          
         </Toolbar>
       </AppBar>
     </Box>

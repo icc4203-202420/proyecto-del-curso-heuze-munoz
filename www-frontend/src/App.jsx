@@ -7,6 +7,7 @@ import MainCard from './components/MainCard'; // Import your CenteredCard compon
 import Beers from './pages/Beers';
 import Bars from './pages/Bars';
 import Events from './pages/Events';
+import Users from './pages/Users'
 function App() {
   return (
     <Router>
@@ -15,9 +16,10 @@ function App() {
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Routes>
             <Route path="/" element={<MainCard />} />
-            <Route path="/cervezas" element={<Beers />} />
-            <Route path="/bares" element={<Bars />} />
+            <Route path="/users" element={<Users />} />
             <Route path="/eventos" element={<Events />} />
+            <Route path="/cervezas" element={<Beers />} />
+            <Route path="/bares" element={<Bars />} />            
           </Routes>
         </Box>
         <BotNav />
