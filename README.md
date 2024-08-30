@@ -1,4 +1,3 @@
-
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=15552904&assignment_repo_type=AssignmentRepo)
 # Proyecto de Aplicaciones Móviles - Enunciado General del Proyecto
 
@@ -118,9 +117,12 @@ Los requisitos funcionales de la aplicación que deberán desarrollar son los si
 11. Los usuarios pueden buscarse mutuamente en la aplicación usando _handle_, y agregarse como amigos (ver modelo `Friendship` y tabla en `schema.rb`), indicando el evento en donde se encontraron por primera vez opcionalmente.
 12. Los usuarios pueden etiquetarse en las fotos de un evento.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> d5ff6b5 (update readme)
+=======
+>>>>>>> upstream/main
 
 En las entregas sucesivas del proyecto se les irá solicitando completar funcionalidad relativa a los requisitos anteriores, y se les dará más detalle sobre las funciones específicas a implementar.
 
@@ -153,12 +155,6 @@ Luego, se necesita crear una clave para que devise-jwt y Warden generen tokens J
 
 ```sh
 rails runner "require 'securerandom'; puts SecureRandom.hex(64)"
-<<<<<<< HEAD
-=======
-
->>>>>>> d5ff6b5 (update readme)
-```
-
 Copiar la clave generada en la consola.
 
 ```sh
@@ -187,10 +183,6 @@ Luego, es posible ejecutar los tests:
 
 ```sh
 bundle exec rspec # verificar que los tests pasen
-<<<<<<< HEAD
-=======
-
->>>>>>> d5ff6b5 (update readme)
 ```
 
 **Iniciar la aplicación de backend Rails**
