@@ -8,6 +8,8 @@ import Beers from './pages/Beers';
 import Bars from './pages/Bars';
 import BarsEvents from './pages/BarsEvents';
 import Users from './pages/Users';
+import Login from './pages/Login'; // Asegúrate de importar el componente Login
+import Register from './pages/Register'; // Asegúrate de importar el componente Register
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<MainCard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/users" element={<Users />} />
             <Route path="/beers" element={<Beers />} />
             <Route path="/bars" element={<Bars />} />
