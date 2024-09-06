@@ -1,11 +1,12 @@
 class API::V1::ReviewsController < ApplicationController
   respond_to :json
-  before_action :set_user, only: [:index, :create]
+  before_action :set_user, only: [:create] #TODO: agregart :index?
   before_action :set_review, only: [:show, :update, :destroy]
+  before_action :set_beer
 
   def index
-    @reviews = Review.where(user: @user)
-    render json: { reviews: @reviews }, status: :ok
+    reviews = @beer.reviews.includes(:user)
+    render json: reviews, include: [:user]
   end
 
   def show
@@ -17,11 +18,13 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def create
-    @review = @user.reviews.build(review_params)
-    if @review.save
-      render json: @review, status: :created, location: api_v1_review_url(@review)
+    review = @beer.reviews.new(review_params)
+    review.user = User.find(params[:user_id])
+
+    if review.save
+      render json: { review: review }, status: :created
     else
-      render json: @review.errors, status: :unprocessable_entity
+      render json: { errors: review.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -43,6 +46,12 @@ class API::V1::ReviewsController < ApplicationController
   def set_review
     @review = Review.find_by(id: params[:id])
     render json: { error: "Review not found" }, status: :not_found unless @review
+  end
+
+  def set_beer
+    @beer = Beer.find(params[:beer_id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Beer not found' }, status: :not_found
   end
 
   def set_user

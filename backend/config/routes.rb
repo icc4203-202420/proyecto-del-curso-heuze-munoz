@@ -25,7 +25,9 @@ Rails.application.routes.draw do
         resources :events, only: [:index]
       end
       resources :events, only: [:show, :create, :update, :destroy]
-      resources :beers
+      resources :beers do 
+        resources :reviews, only:[:index, :create]
+      end
       resources :users do
         member do
           get 'friendships'
