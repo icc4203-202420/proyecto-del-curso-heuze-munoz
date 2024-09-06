@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, Card, CardContent, Typography, Box, TextField , Button} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Grid, Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
 
 function Beers() {
   const [beers, setBeers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
-  const navigate = useNavigate(); // Hook para navegar
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
     axios.get('http://localhost:3001/api/v1/beers')
       .then(response => {
         setBeers(response.data.beers);
-        console.log(response.data);
       });
   }, []);
 
-  // Filtrar cervezas basadas en el término de búsqueda
+  // Filter beers based on search term
   const filteredBeers = beers.filter(beer =>
     beer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Function to handle card click and navigate to the beer's detail page
+  const handleCardClick = (beerId) => {
+    navigate(`/beers/${beerId}`); // Navigate to the beer's detail page
+  };
 
   return (
     <Box sx={{ padding: '16px' }}>
@@ -29,47 +33,47 @@ function Beers() {
       <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
         Go Back
       </Button>
-      
-      {/* Cuadro de búsqueda */}
+
+      {/* Search bar */}
       <TextField
         label="Search Beers"
         variant="outlined"
         fullWidth
-        sx={{ 
+        sx={{
           marginBottom: '16px',
           '& .MuiInputBase-input': {
-            color: '#fff' // Color del texto dentro del campo de búsqueda
+            color: '#fff',
           },
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: '#fff' // Color del borde del campo de búsqueda
+              borderColor: '#fff',
             },
             '&:hover fieldset': {
-              borderColor: '#fff' // Color del borde al pasar el mouse
+              borderColor: '#fff',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#fff' // Color del borde cuando el campo está enfocado
+              borderColor: '#fff',
             }
           },
           '& .MuiInputLabel-root': {
-            color: '#fff' // Color de la etiqueta del campo de búsqueda
+            color: '#fff',
           },
           '& .MuiInputLabel-root.Mui-focused': {
-            color: '#fff' // Color de la etiqueta cuando el campo está enfocado
+            color: '#fff',
           },
-          backgroundColor: '#3f3f3f' // Color de fondo del campo de búsqueda (opcional)
+          backgroundColor: '#3f3f3f',
         }}
-        onChange={(e) => setSearchTerm(e.target.value)} // Actualiza el término de búsqueda
+        onChange={(e) => setSearchTerm(e.target.value)} // Update search term
       />
-      
-      <Grid container spacing={3}> {/* Grid container to manage beer cards */}
+
+      <Grid container spacing={3}>
         {filteredBeers.map(beer => (
-          <Grid item xs={12} sm={6} md={4} key={beer.id}> {/* Responsive grid item */}
-            <Card sx={{ height: '100%' }}> {/* Card for each beer */}
+          <Grid item xs={12} sm={6} md={4} key={beer.id}>
+            <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => handleCardClick(beer.id)}>
               <CardContent>
-                <Typography variant="h5" component="div"> {/* Beer name */}
+                <Typography variant="h5" component="div">
                   {beer.name}
-                </Typography>          
+                </Typography>
               </CardContent>
             </Card>
           </Grid>

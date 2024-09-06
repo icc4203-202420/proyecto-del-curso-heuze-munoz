@@ -5,11 +5,12 @@ import TopBar from './components/TopBar';
 import BotNav from './components/BotNav';
 import MainCard from './components/MainCard';
 import Beers from './pages/Beers';
+import BeerDetail from './pages/BeerDetail'
 import Bars from './pages/Bars';
 import BarsEvents from './pages/BarsEvents';
 import Users from './pages/Users';
-import Login from './pages/Login'; // Asegúrate de importar el componente Login
-import Register from './pages/Register'; // Asegúrate de importar el componente Register
+//import Login from './pages/Login'; // Asegúrate de importar el componente Login
+//import Register from './pages/Register'; // Asegúrate de importar el componente Register
 
 function App() {
   return (
@@ -27,10 +28,9 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<MainCard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/users" element={<Users />} />
             <Route path="/beers" element={<Beers />} />
+            <Route path="/beers/:id" element={<BeerDetail />} />
             <Route path="/bars" element={<Bars />} />
             <Route path="/bars/:barId/events" element={<BarsEvents />} />
           </Routes>
