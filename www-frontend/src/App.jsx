@@ -28,6 +28,9 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<MainCard />} />
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Register />} />
             <Route path="/users" element={<Users />} />
             <Route path="/beers" element={<Beers />} />
             <Route path="/beers/:id" element={<BeerDetail />} />

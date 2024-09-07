@@ -4,12 +4,12 @@ class API::V1::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
 
   def index
-    #@users = User.includes(:reviews, :address).all
-    @users = User.all
-    render json: {users: @users},status: :ok
+    @users = User.includes(:reviews, :address => :country).all
+    render json: @users, include: 'address.country'
   end
 
   def show
+    render json: @user, include: 'address.country'
   end
 
   def create
@@ -36,10 +36,7 @@ class API::V1::UsersController < ApplicationController
   end
 
   def create_friendship
-    @user = User.find(params[:id])
     friend = User.find(params[:friend_id])
-    
-    # Puedes ajustar este valor según tu lógica de negocio
     bar_id = params[:bar_id] || default_bar_id # Proporciona un valor adecuado para bar_id
   
     friendship = Friendship.new(user_id: @user.id, friend_id: friend.id, bar_id: bar_id)
@@ -66,9 +63,8 @@ class API::V1::UsersController < ApplicationController
   def user_params
     params.fetch(:user, {}).
         permit(:id, :first_name, :last_name, :email, :age,
-            { address_attributes: [:id, :line1, :line2, :city, :country, :country_id, 
-              country_attributes: [:id, :name]],
-              reviews_attributes: [:id, :text, :rating, :beer_id, :_destroy]
-            })
+            address_attributes: [:id, :line1, :line2, :city, :country_id],
+            reviews_attributes: [:id, :text, :rating, :beer_id, :_destroy]
+        )
   end
 end
