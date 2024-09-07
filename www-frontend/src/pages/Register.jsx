@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, TextField, Button, Typography, Card, CardContent } from '@mui/material';
+import { Box, TextField, Button, Typography, Card, CardContent, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
@@ -10,9 +10,24 @@ function Register() {
   const [handle, setHandle] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine2, setAddressLine2] = useState('');
+  const [city, setCity] = useState('');
+  const [countryId, setCountryId] = useState('');
+  const [countries, setCountries] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/api/v1/countries')
+      .then(response => {
+        setCountries(response.data);
+      })
+      .catch(err => {
+        setError('Failed to load countries.');
+      });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +47,13 @@ function Register() {
           email,
           handle,
           password,
-          password_confirmation: passwordConfirmation
+          password_confirmation: passwordConfirmation,
+          address: {
+            line1: addressLine1,
+            line2: addressLine2,
+            city,
+            country_id: countryId
+          }
         }
       });
       setSuccess('Registration successful!');
@@ -117,6 +138,44 @@ function Register() {
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               required
             />
+            <TextField
+              label="Address Line 1"
+              variant="outlined"
+              fullWidth
+              sx={{ marginBottom: '16px' }}
+              value={addressLine1}
+              onChange={(e) => setAddressLine1(e.target.value)}
+            />
+            <TextField
+              label="Address Line 2"
+              variant="outlined"
+              fullWidth
+              sx={{ marginBottom: '16px' }}
+              value={addressLine2}
+              onChange={(e) => setAddressLine2(e.target.value)}
+            />
+            <TextField
+              label="City"
+              variant="outlined"
+              fullWidth
+              sx={{ marginBottom: '16px' }}
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+            <FormControl fullWidth sx={{ marginBottom: '16px' }}>
+              <InputLabel>Country</InputLabel>
+              <Select
+                value={countryId}
+                onChange={(e) => setCountryId(e.target.value)}
+                label="Country"
+              >
+                {countries.map(country => (
+                  <MenuItem key={country.id} value={country.id}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button
               type="submit"
               variant="contained"
@@ -124,7 +183,7 @@ function Register() {
               fullWidth
               sx={{ marginBottom: '16px' }}
             >
-              Register
+              Sign Up
             </Button>
             <Button
               variant="outlined"

@@ -19,29 +19,33 @@ export default function TopBar() {
   };
 
   const handleLogout = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('No token found for logout');
+      return;
+    }
+  
     try {
       await axios.delete('http://localhost:3001/api/v1/logout', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // Adjust token storage as needed
+          'authorization': `${token}`
         }
       });
-      localStorage.removeItem('jwtToken'); // Clear token on logout
-      setLoggedIn(false); // Update login state
-      navigate('/login'); // Redirect to login page
+      localStorage.removeItem('authToken');
+      navigate('/login');
     } catch (error) {
-      console.error('Logout error', error);
+      console.error('Error during logout:', error);
     }
-    handleClose();
   };
+  
 
   useEffect(() => {
     // Check if user is logged in and update the state
-    const token = localStorage.getItem('jwtToken');
-    console.log('Token:', token); // Debugging statement
-    setLoggedIn(!!token); // Set loggedIn based on token presence
-
-    console.log('LoggedIn State:', !!token);
-
+    const token = localStorage.getItem('authToken');
+    const isLoggedIn = !!token;
+    setLoggedIn(isLoggedIn); // Set loggedIn based on token presence
+    console.log('Token:', token);
+    console.log('Logged in:', isLoggedIn);
   }, []);
 
   return (
