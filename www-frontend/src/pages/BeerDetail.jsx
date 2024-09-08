@@ -8,32 +8,50 @@ import StarIcon from '@mui/icons-material/Star';
 function BeerDetail() {
   const { id } = useParams(); // Access beer ID from URL (this is the beer's id)
   const [beer, setBeer] = useState(null);
-  const [users, setUsers] = useState([]); // List of users for selection
   const [reviews, setReviews] = useState([]); // List of reviews for the beer
-  const [selectedUser, setSelectedUser] = useState(''); // Selected user for the review
+  const [brewery, setBrewery] = useState(null); // State for brewery
+  const [bars, setBars] = useState([]); // State for bars
   const [reviewText, setReviewText] = useState(''); // Review text
   const [rating, setRating] = useState(0); // Star rating
   const [error, setError] = useState(''); // Error message for review text
 
   useEffect(() => {
+    const token = localStorage.getItem('authToken');
     // Fetch beer details
-    axios.get(`http://localhost:3001/api/v1/beers/${id}`)
-      .then(response => {
-        setBeer(response.data.beer); // Assuming response contains beer data
-      });
+    axios.get(`http://localhost:3001/api/v1/beers/${id}`, {
+      headers: { Authorization: `${token}` }
+    })
+    .then(response => {
+      const beerData = response.data.beer;
+      setBeer(beerData);
+      setBars(response.data.bars); // Bars serving the beer
+   
+      if (beerData.brand_id) {
+        axios.get(`http://localhost:3001/api/v1/breweries/${beerData.brand_id}`, {
+          headers: { Authorization: `${token}` }
+        })
+          .then(response => {
+            console.log('Brewery details:', response.data); // Log the data
+            setBrewery(response.data);
+          })
+          .catch(error => {
+            console.error('Error fetching brewery:', error);
+          });
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching beer details:', error);
+    });
+   
 
     // Fetch reviews for the specific beer using the nested route
-    axios.get(`http://localhost:3001/api/v1/beers/${id}/reviews`)
+    axios.get(`http://localhost:3001/api/v1/beers/${id}/reviews`, {
+      headers: { Authorization: `${token}` }
+    })
     .then(response => {
         
         setReviews(response.data.reviews); // Only set if it's an array
-    });
-
-    // Fetch users (to select who leaves the review)
-    axios.get('http://localhost:3001/api/v1/users') // Assuming this is the correct endpoint
-      .then(response => {
-        setUsers(response.data.users); // Assuming the response contains a list of users
-      });
+    })
   }, [id]);
 
   if (!beer) return <Typography>Loading...</Typography>;
@@ -46,25 +64,23 @@ function BeerDetail() {
     }
 
     const newReview = {
-      user_id: selectedUser, // ID of the user who left the review
-      rating: rating, // Star rating (can be a decimal)
-      text: reviewText // Text review
+      rating: rating,
+      text: reviewText
     };
 
-    // Send the review to the backend API using the nested route
-    axios.post(`http://localhost:3001/api/v1/beers/${id}/reviews`, newReview)
+    axios.post(`http://localhost:3001/api/v1/beers/${id}/reviews`, newReview, {
+      headers: { Authorization: `${token}` }
+    })
       .then(response => {
         alert('Review submitted successfully!');
-        // Optionally clear the form fields
-        setSelectedUser('');
         setReviewText('');
         setRating(0);
-        setError(''); // Clear any errors
-        // Add the new review to the reviews list (optimistic update)
+        setError('');
         setReviews([...reviews, response.data.review]);
       })
       .catch(error => {
         console.error('Error submitting review:', error);
+        setError('Failed to submit review. Please try again.');
       });
   };
 
@@ -144,6 +160,29 @@ function BeerDetail() {
             </Grid>
           </Grid>
           
+           {/* Brewery Information */}
+           {brewery && (
+            <>
+              <Divider sx={{ marginY: 2 }} />
+              <Typography variant="h5">Brewery Information</Typography>
+              <Typography><strong>Brewery:</strong> {brewery.name}</Typography>
+            </>
+          )}
+
+          <Divider sx={{ marginY: 2 }} />
+          
+          <Typography variant="h5">Bars Serving This Beer</Typography>
+          {Array.isArray(bars) && bars.length > 0 ? (
+            bars.map(bar => (
+              <Typography key={bar.id}>
+                <strong>{bar.name}</strong> - {bar.address?.line1}, {bar.address?.city}
+              </Typography>
+            ))
+          ) : (
+            <Typography>No bars found serving this beer.</Typography>
+          )}
+
+
 
           <Divider sx={{ marginY: 2 }} />
 
@@ -156,22 +195,6 @@ function BeerDetail() {
           {error && <Alert severity="error">{error}</Alert>}
 
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              {/* Dropdown to select a user */}
-              <TextField
-                select
-                label="Select User"
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
-                fullWidth
-              >
-                {users.map((user) => (
-                  <MenuItem key={user.id} value={user.id}>
-                    {user.first_name} {user.last_name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
 
             <Grid item xs={12}>
               {/* Text field for the review */}

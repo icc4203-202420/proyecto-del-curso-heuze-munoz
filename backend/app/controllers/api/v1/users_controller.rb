@@ -1,6 +1,6 @@
 class API::V1::UsersController < ApplicationController
   respond_to :json 
-  before_action :authenticate_user!, except: [:index] ###### TODO: SACR EL EXCEPT CUANDO SE IMPLEMENTE LA AUTENTICACION  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  before_action :authenticate_user!
   before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
 
   def index
