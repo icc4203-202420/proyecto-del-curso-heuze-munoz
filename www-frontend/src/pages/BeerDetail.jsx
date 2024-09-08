@@ -250,8 +250,9 @@ function BeerDetail() {
               <Card key={review.id} sx={{ marginBottom: '16px', padding: '16px' }}>
                 <Typography variant="h6">
                   {review.user.handle} {review.user_id === currentUserId && "(Your Review)"}
+                  <Rating value={parseFloat(review.rating)} readOnly precision={0.1} max={5} />
                 </Typography>
-                <Rating value={parseFloat(review.rating)} readOnly precision={0.1} max={5} />
+                
                 <Typography variant="body1">
                   {review.text ? review.text : 'No review text provided.'}
                 </Typography>
