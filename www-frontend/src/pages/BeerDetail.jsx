@@ -24,7 +24,6 @@ function BeerDetail() {
     .then(response => {
       const beerData = response.data.beer;
       setBeer(beerData);
-      setBars(response.data.bars); // Bars serving the beer
    
       if (beerData.brand_id) {
         axios.get(`http://localhost:3001/api/v1/breweries/${beerData.brand_id}`, {
@@ -32,7 +31,8 @@ function BeerDetail() {
         })
           .then(response => {
             console.log('Brewery details:', response.data); // Log the data
-            setBrewery(response.data);
+            setBrewery(response.data.brewery);
+            setBars(response.data.brewery)
           })
           .catch(error => {
             console.error('Error fetching brewery:', error);
@@ -161,7 +161,7 @@ function BeerDetail() {
           </Grid>
           
            {/* Brewery Information */}
-           {brewery && (
+           {brewery &&(
             <>
               <Divider sx={{ marginY: 2 }} />
               <Typography variant="h5">Brewery Information</Typography>
@@ -175,7 +175,7 @@ function BeerDetail() {
           {Array.isArray(bars) && bars.length > 0 ? (
             bars.map(bar => (
               <Typography key={bar.id}>
-                <strong>{bar.name}</strong> - {bar.address?.line1}, {bar.address?.city}
+                <strong>{bar.name}</strong>
               </Typography>
             ))
           ) : (
