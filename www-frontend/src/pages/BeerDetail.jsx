@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState} from 'react';
+import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Typography, Box, Card, CardContent, Grid, Divider, Avatar, Button, TextField, MenuItem, Rating, Alert } from '@mui/material';
 import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
 import StarIcon from '@mui/icons-material/Star';
 
 function BeerDetail() {
+  const navigate = useNavigate();
   const { id } = useParams(); 
   const [beer, setBeer] = useState(null);
   const [reviews, setReviews] = useState([]); 
@@ -15,7 +16,7 @@ function BeerDetail() {
   const [rating, setRating] = useState(0); 
   const [error, setError] = useState(''); 
   const [currentUserId, setCurrentUserId] = useState(null); // Error message for review text
-
+  
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     //USER CONECTADO PA LA REVIEW
@@ -35,7 +36,7 @@ function BeerDetail() {
         })
           .then(response => {
             setBrewery(response.data.brewery);
-            setBars(response.data.brewery)
+            setBars(response.data.bars)
           })
           .catch(error => {
             console.error('Error fetching brewery:', error);
@@ -52,7 +53,6 @@ function BeerDetail() {
       headers: { Authorization: `${token}` }
     })
     .then(response => {
-      console.log(response.data)
         setReviews(response.data); // Only set if it's an array
     })
   }, [id]);
@@ -95,6 +95,9 @@ function BeerDetail() {
   const formattedReviews = currentUserReview ? [currentUserReview, ...otherReviews] : otherReviews;
   return (
     <Box sx={{ padding: '24px' }}>
+      <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
+        Go Back
+    </Button>
       <Card sx={{ padding: '16px', backgroundColor: '#f5f5f5', boxShadow: 3 }}>
         <CardContent>
           <Grid container spacing={3} alignItems="center">
@@ -184,7 +187,7 @@ function BeerDetail() {
           {Array.isArray(bars) && bars.length > 0 ? (
             bars.map(bar => (
               <Typography key={bar.id}>
-                <strong>{bar.name}</strong>
+                {bar.name}
               </Typography>
             ))
           ) : (
