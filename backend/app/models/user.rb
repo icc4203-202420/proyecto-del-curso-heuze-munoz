@@ -12,7 +12,8 @@ class User < ApplicationRecord
 
   has_many :reviews
   has_many :beers, through: :reviews
-  has_one :address
+  has_one :address, dependent: :destroy
+  accepts_nested_attributes_for :address
 
   has_many :attendances
   has_many :events, through: :attendances

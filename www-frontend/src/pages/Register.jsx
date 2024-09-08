@@ -32,7 +32,17 @@ function Register() {
           email,
           handle,
           password,
+<<<<<<< Updated upstream
           password_confirmation: passwordConfirmation
+=======
+          password_confirmation: passwordConfirmation,
+          address: {
+            line1: addressLine1,
+            line2: addressLine2,
+            city: city,
+            country_id: countryId
+          }
+>>>>>>> Stashed changes
         }
       });
       setSuccess('Registration successful!');

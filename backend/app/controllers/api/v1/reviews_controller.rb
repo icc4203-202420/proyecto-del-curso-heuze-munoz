@@ -1,6 +1,10 @@
 class API::V1::ReviewsController < ApplicationController
   respond_to :json
+<<<<<<< Updated upstream
   before_action :set_user, only: [:index, :create]
+=======
+  include Authenticable
+>>>>>>> Stashed changes
   before_action :set_review, only: [:show, :update, :destroy]
 
   def index
@@ -17,9 +21,17 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def create
+<<<<<<< Updated upstream
     @review = @user.reviews.build(review_params)
     if @review.save
       render json: @review, status: :created, location: api_v1_review_url(@review)
+=======
+    review = @beer.reviews.new(review_params)
+    review.user = current_user
+
+    if review.save
+      render json: { review: review }, status: :created
+>>>>>>> Stashed changes
     else
       render json: @review.errors, status: :unprocessable_entity
     end
@@ -45,8 +57,15 @@ class API::V1::ReviewsController < ApplicationController
     render json: { error: "Review not found" }, status: :not_found unless @review
   end
 
+<<<<<<< Updated upstream
   def set_user
     @user = User.find(params[:user_id]) 
+=======
+  def set_beer
+    @beer = Beer.find(params[:beer_id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Beer not found' }, status: :not_found
+>>>>>>> Stashed changes
   end
 
   def review_params

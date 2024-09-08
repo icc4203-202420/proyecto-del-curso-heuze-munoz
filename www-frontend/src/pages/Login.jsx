@@ -33,8 +33,19 @@ function Login() {
   };
 
   return (
+<<<<<<< Updated upstream
     <Box sx={{ maxWidth: 400, mx: 'auto', my: 4, p: 2 }}>
       <Typography variant="h4" gutterBottom>
+=======
+    <Container maxWidth="xs" sx={{ 
+      backgroundColor: 'white',  // Set background color of the container
+      padding: '16px',  // Optional: add some padding
+      borderRadius: '8px',  // Optional: make the corners rounded
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'  // Optional: add a shadow for better aesthetics
+    }}>
+      
+      <Typography variant="h5" gutterBottom>
+>>>>>>> Stashed changes
         Login
       </Typography>
       {error && <Typography color="error">{error}</Typography>}
