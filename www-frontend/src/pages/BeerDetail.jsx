@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState} from 'react';
+import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Typography, Box, Card, CardContent, Grid, Divider, Avatar, Button, TextField, MenuItem, Rating, Alert } from '@mui/material';
 import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
 import StarIcon from '@mui/icons-material/Star';
 
 function BeerDetail() {
-  const { id } = useParams(); // Access beer ID from URL (this is the beer's id)
+  const navigate = useNavigate();
+  const { id } = useParams(); 
   const [beer, setBeer] = useState(null);
-  const [reviews, setReviews] = useState([]); // List of reviews for the beer
-  const [brewery, setBrewery] = useState(null); // State for brewery
-  const [bars, setBars] = useState([]); // State for bars
-  const [reviewText, setReviewText] = useState(''); // Review text
-  const [rating, setRating] = useState(0); // Star rating
-  const [error, setError] = useState(''); // Error message for review text
-
+  const [reviews, setReviews] = useState([]); 
+  const [brewery, setBrewery] = useState(null); 
+  const [bars, setBars] = useState([]); 
+  const [reviewText, setReviewText] = useState(''); 
+  const [rating, setRating] = useState(0); 
+  const [error, setError] = useState(''); 
+  const [currentUserId, setCurrentUserId] = useState(null); // Error message for review text
+  
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    //USER CONECTADO PA LA REVIEW
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    setCurrentUserId(decodedToken.sub);
     // Fetch beer details
     axios.get(`http://localhost:3001/api/v1/beers/${id}`, {
       headers: { Authorization: `${token}` }
@@ -24,15 +29,14 @@ function BeerDetail() {
     .then(response => {
       const beerData = response.data.beer;
       setBeer(beerData);
-      setBars(response.data.bars); // Bars serving the beer
    
       if (beerData.brand_id) {
         axios.get(`http://localhost:3001/api/v1/breweries/${beerData.brand_id}`, {
           headers: { Authorization: `${token}` }
         })
           .then(response => {
-            console.log('Brewery details:', response.data); // Log the data
-            setBrewery(response.data);
+            setBrewery(response.data.brewery);
+            setBars(response.data.bars)
           })
           .catch(error => {
             console.error('Error fetching brewery:', error);
@@ -49,14 +53,16 @@ function BeerDetail() {
       headers: { Authorization: `${token}` }
     })
     .then(response => {
-        
-        setReviews(response.data.reviews); // Only set if it's an array
+        setReviews(response.data); // Only set if it's an array
     })
   }, [id]);
 
   if (!beer) return <Typography>Loading...</Typography>;
 
   const handleSubmitReview = () => {
+    const token = localStorage.getItem('authToken');
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    setCurrentUserId(decodedToken.sub);
     // Validate that review text has at least 15 characters
     if (reviewText.length < 15) {
       setError('Review must be at least 15 characters long.');
@@ -65,7 +71,8 @@ function BeerDetail() {
 
     const newReview = {
       rating: rating,
-      text: reviewText
+      text: reviewText,
+      user_id: currentUserId
     };
 
     axios.post(`http://localhost:3001/api/v1/beers/${id}/reviews`, newReview, {
@@ -83,9 +90,14 @@ function BeerDetail() {
         setError('Failed to submit review. Please try again.');
       });
   };
-
+  const currentUserReview = reviews.find(review => review.user_id === currentUserId);
+  const otherReviews = reviews.filter(review => review.user_id !== currentUserId);
+  const formattedReviews = currentUserReview ? [currentUserReview, ...otherReviews] : otherReviews;
   return (
     <Box sx={{ padding: '24px' }}>
+      <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
+        Go Back
+    </Button>
       <Card sx={{ padding: '16px', backgroundColor: '#f5f5f5', boxShadow: 3 }}>
         <CardContent>
           <Grid container spacing={3} alignItems="center">
@@ -161,7 +173,7 @@ function BeerDetail() {
           </Grid>
           
            {/* Brewery Information */}
-           {brewery && (
+           {brewery &&(
             <>
               <Divider sx={{ marginY: 2 }} />
               <Typography variant="h5">Brewery Information</Typography>
@@ -175,7 +187,7 @@ function BeerDetail() {
           {Array.isArray(bars) && bars.length > 0 ? (
             bars.map(bar => (
               <Typography key={bar.id}>
-                <strong>{bar.name}</strong> - {bar.address?.line1}, {bar.address?.city}
+                {bar.name}
               </Typography>
             ))
           ) : (
@@ -233,23 +245,21 @@ function BeerDetail() {
           <Typography variant="h5" gutterBottom>
             Reviews
           </Typography>
-          {Array.isArray(reviews) && reviews.length > 0 ? (
-            reviews.map(review => (
-                <Card key={review.id} sx={{ marginBottom: '16px', padding: '16px' }}>
+          {formattedReviews && formattedReviews.length > 0 ? (
+            formattedReviews.sort((a, b) => b.user_id === currentUserId ? 1 : -1).map(review => (
+              <Card key={review.id} sx={{ marginBottom: '16px', padding: '16px' }}>
                 <Typography variant="h6">
-                    {review.user.first_name} {review.user.last_name}
+                  {review.user.handle} {review.user_id === currentUserId && "(Your Review)"}
                 </Typography>
                 <Rating value={parseFloat(review.rating)} readOnly precision={0.1} max={5} />
                 <Typography variant="body1">
-                    {review.text ? review.text : 'No review text provided.'}
+                  {review.text ? review.text : 'No review text provided.'}
                 </Typography>
-                </Card>
+              </Card>
             ))
-            ) : (
-                <Typography variant="body1">No reviews yet.</Typography>
-            )}
-
-
+          ) : (
+            <Typography>No reviews yet.</Typography>
+          )}
         </CardContent>
       </Card>
     </Box>

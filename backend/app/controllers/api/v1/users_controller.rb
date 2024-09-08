@@ -1,5 +1,5 @@
 class API::V1::UsersController < ApplicationController
-  respond_to :json
+  respond_to :json 
   before_action :authenticate_user!
   before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
 
@@ -51,7 +51,13 @@ class API::V1::UsersController < ApplicationController
   private
 
   def set_user
-    @user = User.find(params[:id])
+    if params[:user_id].present?
+      @user = User.find(params[:user_id])
+    else
+      render json: { error: 'User ID is missing' }, status: :bad_request
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'User not found' }, status: :not_found
   end
 
   def user_params
