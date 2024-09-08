@@ -9,8 +9,8 @@ import BeerDetail from './pages/BeerDetail'
 import Bars from './pages/Bars';
 import BarsEvents from './pages/BarsEvents';
 import Users from './pages/Users';
-//import Login from './pages/Login'; // Asegúrate de importar el componente Login
-//import Register from './pages/Register'; // Asegúrate de importar el componente Register
+import Login from './pages/Login'; // Asegúrate de importar el componente Login
+import Register from './pages/Register'; // Asegúrate de importar el componente Register
 
 function App() {
   return (

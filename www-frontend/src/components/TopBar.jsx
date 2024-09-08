@@ -1,10 +1,8 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import SettingsIcon from '@mui/icons-material/Settings';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import axios from 'axios';
 
 export default function TopBar() {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -60,10 +58,22 @@ export default function TopBar() {
           size="large"
           edge="end"
           color="inherit"
-          aria-label="settings"
+          aria-label="user"
+          onClick={handleMenu}
         >
-          <SettingsIcon />
+          <AccountCircleIcon />
         </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+        >
+          {loggedIn ? (
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          ) : (
+            <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
+          )}
+        </Menu>
       </Toolbar>
     </AppBar>
   );
