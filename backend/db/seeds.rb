@@ -55,7 +55,7 @@ if Rails.env.development?
     end
 
     # Users review random beers
-    beers.sample(rand(1..3)).each do |beer|
+    beers.sample(3).each do |beer|
       FactoryBot.create(:review, user: user, beer: beer, rating: rand(1.0..5.0).round(1), text: Faker::Lorem.sentence(word_count: 15))
     end
   end
