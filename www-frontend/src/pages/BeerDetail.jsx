@@ -6,17 +6,21 @@ import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
 import StarIcon from '@mui/icons-material/Star';
 
 function BeerDetail() {
-  const { id } = useParams(); // Access beer ID from URL (this is the beer's id)
+  const { id } = useParams(); 
   const [beer, setBeer] = useState(null);
-  const [reviews, setReviews] = useState([]); // List of reviews for the beer
-  const [brewery, setBrewery] = useState(null); // State for brewery
-  const [bars, setBars] = useState([]); // State for bars
-  const [reviewText, setReviewText] = useState(''); // Review text
-  const [rating, setRating] = useState(0); // Star rating
-  const [error, setError] = useState(''); // Error message for review text
+  const [reviews, setReviews] = useState([]); 
+  const [brewery, setBrewery] = useState(null); 
+  const [bars, setBars] = useState([]); 
+  const [reviewText, setReviewText] = useState(''); 
+  const [rating, setRating] = useState(0); 
+  const [error, setError] = useState(''); 
+  const [currentUserId, setCurrentUserId] = useState(null); // Error message for review text
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    //USER CONECTADO PA LA REVIEW
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    setCurrentUserId(decodedToken.sub);
     // Fetch beer details
     axios.get(`http://localhost:3001/api/v1/beers/${id}`, {
       headers: { Authorization: `${token}` }
@@ -30,7 +34,6 @@ function BeerDetail() {
           headers: { Authorization: `${token}` }
         })
           .then(response => {
-            console.log('Brewery details:', response.data); // Log the data
             setBrewery(response.data.brewery);
             setBars(response.data.brewery)
           })
@@ -49,14 +52,17 @@ function BeerDetail() {
       headers: { Authorization: `${token}` }
     })
     .then(response => {
-        
-        setReviews(response.data.reviews); // Only set if it's an array
+      console.log(response.data)
+        setReviews(response.data); // Only set if it's an array
     })
   }, [id]);
 
   if (!beer) return <Typography>Loading...</Typography>;
 
   const handleSubmitReview = () => {
+    const token = localStorage.getItem('authToken');
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    setCurrentUserId(decodedToken.sub);
     // Validate that review text has at least 15 characters
     if (reviewText.length < 15) {
       setError('Review must be at least 15 characters long.');
@@ -65,7 +71,8 @@ function BeerDetail() {
 
     const newReview = {
       rating: rating,
-      text: reviewText
+      text: reviewText,
+      user_id: currentUserId
     };
 
     axios.post(`http://localhost:3001/api/v1/beers/${id}/reviews`, newReview, {
@@ -83,7 +90,9 @@ function BeerDetail() {
         setError('Failed to submit review. Please try again.');
       });
   };
-
+  const currentUserReview = reviews.find(review => review.user_id === currentUserId);
+  const otherReviews = reviews.filter(review => review.user_id !== currentUserId);
+  const formattedReviews = currentUserReview ? [currentUserReview, ...otherReviews] : otherReviews;
   return (
     <Box sx={{ padding: '24px' }}>
       <Card sx={{ padding: '16px', backgroundColor: '#f5f5f5', boxShadow: 3 }}>
@@ -233,23 +242,21 @@ function BeerDetail() {
           <Typography variant="h5" gutterBottom>
             Reviews
           </Typography>
-          {Array.isArray(reviews) && reviews.length > 0 ? (
-            reviews.map(review => (
-                <Card key={review.id} sx={{ marginBottom: '16px', padding: '16px' }}>
+          {formattedReviews && formattedReviews.length > 0 ? (
+            formattedReviews.sort((a, b) => b.user_id === currentUserId ? 1 : -1).map(review => (
+              <Card key={review.id} sx={{ marginBottom: '16px', padding: '16px' }}>
                 <Typography variant="h6">
-                    {review.user.first_name} {review.user.last_name}
+                  {review.user.handle} {review.user_id === currentUserId && "(Your Review)"}
                 </Typography>
                 <Rating value={parseFloat(review.rating)} readOnly precision={0.1} max={5} />
                 <Typography variant="body1">
-                    {review.text ? review.text : 'No review text provided.'}
+                  {review.text ? review.text : 'No review text provided.'}
                 </Typography>
-                </Card>
+              </Card>
             ))
-            ) : (
-                <Typography variant="body1">No reviews yet.</Typography>
-            )}
-
-
+          ) : (
+            <Typography>No reviews yet.</Typography>
+          )}
         </CardContent>
       </Card>
     </Box>

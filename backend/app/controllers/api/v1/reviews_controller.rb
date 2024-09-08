@@ -1,8 +1,9 @@
 class API::V1::ReviewsController < ApplicationController
   respond_to :json
-  before_action :set_user, only: [:create] #TODO: agregart :index?
+  before_action :set_user, only: [:create]
   before_action :set_review, only: [:show, :update, :destroy]
   before_action :set_beer
+  before_action :verify_jwt_token, only: [:create, :update, :destroy]
 
   def index
     reviews = @beer.reviews.includes(:user)
@@ -11,7 +12,7 @@ class API::V1::ReviewsController < ApplicationController
 
   def show
     if @review
-      render json: { review: @review }, status: :ok
+      render json: { review: @review.as_json }, status: :ok
     else
       render json: { error: "Review not found" }, status: :not_found
     end
@@ -61,4 +62,9 @@ class API::V1::ReviewsController < ApplicationController
   def review_params
     params.require(:review).permit(:id, :text, :rating, :beer_id)
   end
+  
+  def verify_jwt_token
+    authenticate_user!
+    head :unauthorized unless current_user
+  end 
 end

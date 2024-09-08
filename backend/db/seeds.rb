@@ -23,6 +23,9 @@ if Rails.env.development?
     FactoryBot.create(:brewery_with_brands_with_beers, countries: [country])
   end
 
+  # Get all beers after they are created
+  beers = Beer.all
+
   # Crear usuarios con direcciones asociadas
   users = FactoryBot.create_list(:user, 10) do |user, i|
     user.address.update(country: countries.sample)
@@ -31,7 +34,7 @@ if Rails.env.development?
   # Crear bares con direcciones y cervezas asociadas
   bars = FactoryBot.create_list(:bar, 5) do |bar|
     bar.address.update(country: countries.sample)
-    bar.beers << Beer.all.sample(rand(1..3))
+    bar.beers << beers.sample(rand(1..3)) # Associate beers with bars
   end
 
   # Crear eventos asociados a los bares
@@ -46,8 +49,14 @@ if Rails.env.development?
 
   # Crear attendances (asistencia) de usuarios a eventos
   users.each do |user|
+    # Users attend random events
     events.sample(rand(1..3)).each do |event|
       FactoryBot.create(:attendance, user: user, event: event, checked_in: [true, false].sample)
+    end
+
+    # Users review random beers
+    beers.sample(rand(1..3)).each do |beer|
+      FactoryBot.create(:review, user: user, beer: beer, rating: rand(1.0..5.0).round(1), text: Faker::Lorem.sentence(word_count: 15))
     end
   end
 

@@ -7,7 +7,7 @@ class User < ApplicationRecord
     jwt_revocation_strategy: self
 
   validates :first_name, :last_name, presence: true, length: { minimum: 2 }
-  validates :email, email: true
+  validates :email, email: true, uniqueness: true
   validates :handle, presence: true, uniqueness: true, length: { minimum: 3 }
 
   has_many :reviews
