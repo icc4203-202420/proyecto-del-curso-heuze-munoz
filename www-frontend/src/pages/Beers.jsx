@@ -22,7 +22,14 @@ function Beers() {
 
   // Function to handle card click and navigate to the beer's detail page
   const handleCardClick = (beerId) => {
-    navigate(`/beers/${beerId}`); // Navigate to the beer's detail page
+    const isAuthenticated = localStorage.getItem('token'); // Verifica si el token está presente
+  
+    if (!isAuthenticated) {
+      alert('Debes iniciar sesión para ver los detalles de esta cerveza.'); // Muestra el mensaje
+      navigate('/login'); // Redirige a la página de login
+    } else {
+      navigate(`/beers/${beerId}`); // Si está autenticado, navega a los detalles de la cerveza
+    }
   };
 
   return (
