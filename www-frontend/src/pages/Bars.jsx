@@ -34,6 +34,10 @@ function Bars() {
       <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
         Go Back
       </Button>
+      {/* Botón para ir a mapa  */}
+      <Button onClick={() => navigate('/barsMap')} variant="contained" color="secondary" sx={{ marginBottom: '16px', marginLeft: '16px' }}>
+        View Map of Bars
+      </Button>
       
       {/* Cuadro de búsqueda */}
       <TextField

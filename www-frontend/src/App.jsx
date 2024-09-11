@@ -9,8 +9,10 @@ import BeerDetail from './pages/BeerDetail'
 import Bars from './pages/Bars';
 import BarsEvents from './pages/BarsEvents';
 import Users from './pages/Users';
-import Login from './pages/Login'; // Asegúrate de importar el componente Login
-import Register from './pages/Register'; // Asegúrate de importar el componente Register
+import Login from './pages/Login';
+import Register from './pages/Register';
+import BarsMap from './pages/BarsMap';
+
 
 function App() {
   return (
@@ -22,8 +24,8 @@ function App() {
             flexGrow: 1,
             display: 'flex',
             flexDirection: 'column',
-            paddingTop: '64px', // Ajusta al tamaño de TopBar
-            paddingBottom: '56px', // Ajusta al tamaño de BotNav
+            paddingTop: '64px',
+            paddingBottom: '56px',
           }}
         >
           <Routes>
@@ -35,6 +37,7 @@ function App() {
             <Route path="/beers" element={<Beers />} />
             <Route path="/beers/:id" element={<BeerDetail />} />
             <Route path="/bars" element={<Bars />} />
+            <Route path="/barsMap" element={<BarsMap />} />
             <Route path="/bars/:barId/events" element={<BarsEvents />} />
           </Routes>
         </Box>

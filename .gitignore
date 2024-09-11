@@ -75,6 +75,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+www-frontend/.env
 .env
 .env.development.local
 .env.test.local
@@ -140,7 +141,7 @@ backend/db/*.sqlite3-[0-9]*
 backend/storage/*
 backend/tmp/*
 
-backemd/config/initializers/secret_token.rb
+backend/config/initializers/secret_token.rb
 backend/config/master.key
 backend/config/credentials/*.key
 
