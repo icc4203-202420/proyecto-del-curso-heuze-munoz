@@ -60,7 +60,7 @@ export default function TopBar() {
   }, []);
 
   return (
-    <AppBar position="fixed" sx={{ bgcolor: '#6A0DAD', height: '64px' }}>
+    <AppBar position="fixed" sx={{ bgcolor: '#6A0DAD', height: '64px', minWidth: '100%' }}>
       <Toolbar sx={{ paddingLeft: '16px', paddingRight: '16px' }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           BeerBuddy

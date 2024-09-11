@@ -2,76 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Typography, TextField, Grid, Card, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom'; // For navigation
-import MapComponent from '../components/MapComponent';
+import MapComponent from '../components/MapComponent'; // Import your MapComponent
 
 function BarsPage() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(''); // Stores the search term
   const [selectedBar, setSelectedBar] = useState(null); // Stores the selected bar for the map
 
+  // Sample list of bars with latitude and longitude
   const bars = [
     {
+      id: 1,
       name: "La Vinoteca",
       latitude: -33.404001,
       longitude: -70.587500,
     },
     {
-      name: "Milánesa",
-      latitude: -33.400570,
-      longitude: -70.588390,
+      id: 2,
+      name: "Master Bar-Restaurant",
+      latitude: -33.52604041910966,
+      longitude: -70.77353065549445,
     },
     {
-      name: "Candelaria Bar",
-      latitude: -33.407421,
-      longitude: -70.590020,
+      id: 3,
+      name: "Flat Bar",
+      latitude: -33.61211226645637,
+      longitude: -70.57550148459906,
     },
-    {
-      name: "Senso Bar",
-      latitude: -33.407830,
-      longitude: -70.583200,
-    },
-    {
-      name: "Whisky Blue",
-      latitude: -33.418789,
-      longitude: -70.601034,
-    },
-    {
-      name: "Red Luxury Bar",
-      latitude: -33.414702,
-      longitude: -70.594739,
-    },
-    {
-      name: "Bar Alonso",
-      latitude: -33.410383,
-      longitude: -70.582630,
-    },
-    {
-      name: "Piso Uno",
-      latitude: -33.405786,
-      longitude: -70.588191,
-    },
-    {
-      name: "Liguria Bar",
-      latitude: -33.429452,
-      longitude: -70.616123,
-    },
-    {
-      name: "Bar Nacional",
-      latitude: -33.422630,
-      longitude: -70.609137,
-    },
+    
   ];
-  
 
+  // Filter bars based on the search term
   const filteredBars = bars.filter(bar => 
     bar.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Update the selected bar when search term changes
   useEffect(() => {
-    if (filteredBars.length > 0) {
-      setSelectedBar(filteredBars[0]);
+    if (filteredBars.length > 0 && (!selectedBar || selectedBar.name !== filteredBars[0].name)) {
+      setSelectedBar(filteredBars[0]); // Only set if the selected bar is different
     }
-  }, [searchTerm, filteredBars]);
+  }, [searchTerm, filteredBars, selectedBar]);
 
   return (
     <Box sx={{ padding: '16px', minWidth: '100%' }}>
@@ -90,10 +61,10 @@ function BarsPage() {
         variant="outlined"
         fullWidth
         sx={{ marginBottom: '16px', backgroundColor: '#3f3f3f', minWidth: '100%' }}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => setSearchTerm(e.target.value)} // Update search term
       />
 
-      {/* Use MapComponent instead of GoogleMap */}
+      {/* Use MapComponent to display the selected bar's location */}
       {selectedBar && (
         <MapComponent lat={selectedBar.latitude} lng={selectedBar.longitude} />
       )}
@@ -101,14 +72,14 @@ function BarsPage() {
       {/* Bar Cards */}
       <Grid container spacing={3} sx={{ marginTop: '16px', minWidth: '100%', justifyContent: 'center' }}>
         {filteredBars.map(bar => (
-          <Grid item xs={12} sm={6} md={4} key={bar.name}>
+          <Grid item xs={12} sm={6} md={4} key={bar.id}> {/* Changed to use bar.id */}
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   {bar.name}
                 </Typography>
                 <RouterLink 
-                  to={`/bars/${bar.name}/events`} 
+                  to={`/bars/${bar.id}/events`} // Using bar.id for the route
                   style={{ textDecoration: 'none', color: '#6A0DAD' }}
                 >
                   <Typography variant="body2" color="primary">

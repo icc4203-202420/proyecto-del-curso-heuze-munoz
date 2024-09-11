@@ -17,7 +17,7 @@ import BarsMap from './pages/BarsMap';
 function App() {
   return (
     <Router>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: '100%' }}>
         <TopBar />
         <Box
           sx={{
@@ -26,6 +26,7 @@ function App() {
             flexDirection: 'column',
             paddingTop: '64px',
             paddingBottom: '56px',
+            minWidth: '100%'
           }}
         >
           <Routes>

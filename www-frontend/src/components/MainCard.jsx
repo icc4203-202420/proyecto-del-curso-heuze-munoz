@@ -12,8 +12,9 @@ function MainCard() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: '64px', // Adjusts to the size of the TopBar
-        width: '100vw'    // Ensures the container takes the full width of the viewport
+        paddingTop: '64px',
+        width: '100vw',
+        minWidth: '100%'
       }}
     >
       <Paper
