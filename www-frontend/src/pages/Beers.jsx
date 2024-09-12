@@ -22,8 +22,8 @@ function Beers() {
 
   // Function to handle card click and navigate to the beer's detail page
   const handleCardClick = (beerId) => {
-    const isAuthenticated = localStorage.getItem('token'); // Verifica si el token está presente
-  
+    const isAuthenticated = localStorage.getItem('authToken'); // Verifica si el token está presente
+    console.log(isAuthenticated)
     if (!isAuthenticated) {
       alert('Debes iniciar sesión para ver los detalles de esta cerveza.'); // Muestra el mensaje
       navigate('/login'); // Redirige a la página de login
