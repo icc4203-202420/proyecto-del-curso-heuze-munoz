@@ -1,25 +1,26 @@
-import React from 'react';
-import { GoogleMap, Marker, LoadScript } from '@react-google-maps/api';
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, MarkerF, LoadScript } from '@react-google-maps/api';
 
 const MapComponent = ({ lat, lng }) => {
-  const mapStyles = {        
+  const [center, setCenter] = useState({ lat, lng });
+
+  const mapStyles = {
     height: "400px",
     width: "100%"
   };
 
-  const defaultCenter = {
-    lat: lat,
-    lng: lng
-  };
+  useEffect(() => {
+    setCenter({ lat, lng });
+  }, [lat, lng]);
 
   return (
     <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
       <GoogleMap
         mapContainerStyle={mapStyles}
         zoom={13}
-        center={defaultCenter}
+        center={center}
       >
-        <Marker position={defaultCenter} />
+        <MarkerF position={center} />
       </GoogleMap>
     </LoadScript>
   );
