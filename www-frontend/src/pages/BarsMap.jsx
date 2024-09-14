@@ -11,26 +11,24 @@ function BarsPage() {
 
   // Sample list of bars with latitude and longitude
   const bars = [
-    {
-      id: 1,
-      name: "La Vinoteca",
-      latitude: -33.404001,
-      longitude: -70.587500,
-    },
-    {
-      id: 2,
-      name: "Master Bar-Restaurant",
-      latitude: -33.52604041910966,
-      longitude: -70.77353065549445,
-    },
-    {
-      id: 3,
-      name: "Flat Bar",
-      latitude: -33.61211226645637,
-      longitude: -70.57550148459906,
-    },
-    
-  ];
+    { name: "La Vinoteca", longitude: -70.587500, latitude: -33.404001 },
+    { name: "Whisky Blue", longitude: -70.601034, latitude: -33.418789 },
+    { name: "Liguria Bar", longitude: -70.616123, latitude: -33.429452 },
+    { name: "Bar Nacional", longitude: -70.609137, latitude: -33.422630 },
+    { name: "Santo Remedio", longitude: -70.622807, latitude: -33.437238 },
+    { name: "Bar The Clinic", longitude: -70.650458, latitude: -33.438523 },
+    { name: "Flannery's Beer House", longitude: -70.610742, latitude: -33.422971 },
+    { name: "Tiramisú", longitude: -70.602214, latitude: -33.417960 },
+    { name: "La Piojera", longitude: -70.655480, latitude: -33.435417 },
+    { name: "Patio Bellavista", longitude: -70.634678, latitude: -33.431781 },
+    { name: "Rivoli Bar", longitude: -70.609191, latitude: -33.417504 },
+    { name: "Bar Mestizo", longitude: -70.602127, latitude: -33.413493 },
+    { name: "El Honesto Mike", longitude: -70.627746, latitude: -33.431824 },
+    { name: "El Diablito", longitude: -70.622490, latitude: -33.431952 },
+    { name: "Ciudadano", longitude: -70.613651, latitude: -33.429410 },
+    { name: "Master Bar-Restaurant",latitude: -33.52604041910966,longitude: -70.77353065549445},
+    { name: "Flat Bar",latitude: -33.61211226645637,longitude: -70.57550148459906,
+    }];
 
   // Filter bars based on the search term
   const filteredBars = bars.filter(bar => 
