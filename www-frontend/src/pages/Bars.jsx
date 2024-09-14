@@ -25,7 +25,7 @@ function Bars() {
   );
 
   return (
-    <Box sx={{ padding: '16px' }}>
+    <Box sx={{ padding: '16px' ,minWidth: '100%'}}>
       <Typography variant="h4" gutterBottom>
         Bars Page
       </Typography>
@@ -45,6 +45,8 @@ function Bars() {
         variant="outlined"
         fullWidth
         sx={{ 
+          minWidth:'100%',
+          width: '100%',
           marginBottom: '16px',
           '& .MuiInputBase-input': {
             color: '#fff' // Color del texto dentro del campo de búsqueda

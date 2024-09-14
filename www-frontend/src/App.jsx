@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import BotNav from './components/BotNav';
@@ -20,6 +20,7 @@ function App() {
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: '100%' }}>
         <TopBar />
         <Box
+          position="fixed"
           sx={{
             flexGrow: 1,
             display: 'flex',
