@@ -13,22 +13,26 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     setError('');
-
+  
     try {
       const response = await axios.post('http://localhost:3001/api/v1/login', {
         user: { email, password }
       });
-
-      const token = response.headers['authorization']; // Obtener el token del encabezado
-      if (token) {
-        // Guarda el token en el almacenamiento local o en el estado de tu aplicación
+  
+      const token = response.headers['authorization'];
+      const userId = response.data.status.data.user.id;
+  
+      if (token && userId) {
+        // Guarda el token y el ID del usuario en el almacenamiento local
         localStorage.setItem('authToken', token);
-        console.log('Token received:', token);
+        localStorage.setItem('userId', userId);
+
         // Redirige a la página de inicio o a otra página
         console.log('Login successful. Redirecting to home page...');
         navigate('/'); // Redirige usando react-router
+        window.location.reload();
       } else {
-        setError('Login failed: No token received.');
+        setError('Login failed: No token or user ID received.');
       }
     } catch (err) {
       setError('Login failed: ' + err.message);
@@ -36,6 +40,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <Container maxWidth="xs">
