@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, Typography, Grid, Button } from '@mui/material';
+import { Box, Card, CardContent, Typography, Grid, Button, Chip } from '@mui/material';
 import Moment from 'moment';
 
 function BarsEvents() {
@@ -21,7 +21,6 @@ function BarsEvents() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Verificar si el usuario está logueado y obtener el userId
         const token = localStorage.getItem('authToken');
         const userId = localStorage.getItem('userId');
 
@@ -29,25 +28,20 @@ function BarsEvents() {
           throw new Error('User session not found. Please log in again.');
         }
 
-        // Fetch events
         const eventsResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events`);
         setEvents(eventsResponse.data.events);
 
-        // Fetch bar name
         const barResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}`);
         setBarName(barResponse.data.bar.name);
 
-        // Fetch friends
         const friendsResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
           headers: { Authorization: `${token}` },
           params: { user_id: userId }
         });
 
-        // Extraer solo los IDs de amigos para una comparación rápida
         const friendIds = friendsResponse.data.map(friend => friend.id);
         setFriends(friendIds);
 
-        // Fetch attendees for each event
         const attendeesData = {};
         for (const event of eventsResponse.data.events) {
           const attendeesResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events/${event.id}/attendances`);
@@ -57,7 +51,7 @@ function BarsEvents() {
       } catch (error) {
         console.error("There was an error fetching the data!", error);
         if (!isUserLoggedIn()) {
-          navigate('/login'); // Redirige al login si no está logueado
+          navigate('/login');
         }
       }
     };
@@ -68,7 +62,7 @@ function BarsEvents() {
   const handleCheckIn = async (eventId) => {
     if (!isUserLoggedIn()) {
       alert('You must be logged in to check in.');
-      navigate('/login'); // Redirige al login si no está logueado
+      navigate('/login');
       return;
     }
 
@@ -104,19 +98,19 @@ function BarsEvents() {
   };
 
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: '24px'}}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
         {barName} Events
       </Typography>
-      <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
+      <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '24px' }}>
         Go Back
       </Button>
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         {events.map(event => (
-          <Grid item key={event.id}>
-            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Grid item xs={12} sm={6} md={4} key={event.id}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', borderRadius: '12px', boxShadow: 3 }}>
               <CardContent>
-                <Typography variant="h6" component="div" gutterBottom>
+                <Typography variant="h6" component="div" gutterBottom sx={{ fontWeight: 'bold' }}>
                   {event.name}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
@@ -129,28 +123,28 @@ function BarsEvents() {
                   variant="contained" 
                   color="secondary" 
                   onClick={() => handleCheckIn(event.id)}
+                  sx={{ marginTop: '16px' }}
                 >
                   Check-in
                 </Button>
-                <Typography variant="h6" sx={{ marginTop: '16px' }}>Attendees:</Typography>
+                <Typography variant="h6" sx={{ marginTop: '24px', fontWeight: 'bold' }}>Attendees:</Typography>
                 {attendees[event.id] && attendees[event.id].length > 0 ? (
-                  attendees[event.id].map(attendee => (
-                    <Typography 
-                      key={attendee.user.id} 
-                      variant="body2"
-                      sx={{ display: 'flex', alignItems: 'center' }}
-                    >
-                      {attendee.user.handle}
-                      {friends.includes(attendee.user.id) ? (
-                        <Typography 
-                          variant="body2"
-                          sx={{ fontStyle: 'italic', color: 'green', marginLeft: '4px' }}
-                        >
-                          (friend)
+                  attendees[event.id]
+                    .sort((a, b) => {
+                      if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
+                      if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
+                      return 0;
+                    })
+                    .map(attendee => (
+                      <Box key={attendee.user.id} sx={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                        <Typography variant="body2" sx={{ marginRight: '8px' }}>
+                          {attendee.user.handle}
                         </Typography>
-                      ) : ''}
-                    </Typography>
-                  ))
+                        {friends.includes(attendee.user.id) && (
+                          <Chip label="Friend" color="success" size="small" />
+                        )}
+                      </Box>
+                    ))
                 ) : (
                   <Typography variant="body2">No attendees yet.</Typography>
                 )}
