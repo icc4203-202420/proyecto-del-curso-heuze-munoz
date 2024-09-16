@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       resources :breweries, only: [:show]
       resources :bars do
         resources :events, only: [:index] do
-          resources :attendances, only: [:index, :create] # Agregar las rutas para attendances
+          resources :attendances, only: [:index, :create]
         end
       end
       resources :events, only: [:show, :create, :update, :destroy]

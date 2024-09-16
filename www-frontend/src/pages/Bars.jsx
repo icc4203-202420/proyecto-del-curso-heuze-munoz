@@ -34,7 +34,7 @@ function Bars() {
       <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
         Go Back
       </Button>
-      {/* Botón para ir a mapa  */}
+      {/* Botón para ir a mapa */}
       <Button onClick={() => navigate('/barsMap')} variant="contained" color="secondary" sx={{ marginBottom: '16px', marginLeft: '16px' }}>
         View Map of Bars
       </Button>
@@ -78,6 +78,15 @@ function Bars() {
               <CardContent>
                 <Typography variant="h5" component="div"> {/* Bar name */}
                   {bar.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary"> {/* Bar address */}
+                  Address ID: {bar.address_id}
+                </Typography>
+                <Typography variant="body2" color="textSecondary"> {/* Bar latitude */}
+                  Latitude: {bar.latitude}
+                </Typography>
+                <Typography variant="body2" color="textSecondary"> {/* Bar longitude */}
+                  Longitude: {bar.longitude}
                 </Typography>
                 <RouterLink 
                   to={`/bars/${bar.id}/events`} 

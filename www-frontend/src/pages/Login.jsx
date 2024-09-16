@@ -19,18 +19,18 @@ const Login = () => {
         user: { email, password }
       });
   
-      const token = response.headers['authorization']; // Obtener el token del encabezado
-      const userId = response.data.user_id; // Obtener el ID del usuario del cuerpo de la respuesta (ajusta esto según tu respuesta)
+      const token = response.headers['authorization'];
+      const userId = response.data.status.data.user.id;
   
-      if (token) {
+      if (token && userId) {
         // Guarda el token y el ID del usuario en el almacenamiento local
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', userId);
-        console.log('Token received:', token);
-        console.log('User ID received:', userId);
+
         // Redirige a la página de inicio o a otra página
         console.log('Login successful. Redirecting to home page...');
         navigate('/'); // Redirige usando react-router
+        window.location.reload();
       } else {
         setError('Login failed: No token or user ID received.');
       }

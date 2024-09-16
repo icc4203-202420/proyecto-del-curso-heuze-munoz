@@ -6,7 +6,7 @@ import axios from 'axios';
 
 export default function TopBar() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(false); // Track login state
+  const [loggedIn, setLoggedIn] = useState(false);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
 
@@ -23,32 +23,32 @@ export default function TopBar() {
   
     // Verifica si el token existe antes de hacer logout
     if (token) {
-      try {
-        axios.post('/api/v1/logout', {}, {
-          headers: {
-            Authorization: `${token}`
-          }
-        }).then(() => {
-          // Logout exitoso
-          localStorage.removeItem('authToken');
-          navigate('/login');
-        }).catch(err => {
-          // Token expirado o cualquier otro error
-          console.error("Error en logout:", err);
-          // Limpiar el token local y redirigir al login
-          localStorage.removeItem('authToken');
-          navigate('/login');
-        });
-      } catch (error) {
-        console.error("Error al intentar desloguear:", error);
+      axios.delete('http://localhost:3001/api/v1/logout', {
+        headers: {
+          Authorization: `${token}`
+        }
+      })
+      .then(() => {
+        // Logout exitoso
         localStorage.removeItem('authToken');
+        window.location.reload();
         navigate('/login');
-      }
+      })
+      .catch(err => {
+        // Token expirado o cualquier otro error
+        console.error("Error en logout:", err);
+        // Limpiar el token local y redirigir al login
+        localStorage.removeItem('authToken');
+        window.location.reload();
+        navigate('/login');
+      });
     } else {
       // Si no hay token, simplemente redirigir al login
       navigate('/login');
+      window.location.reload();
     }
   };
+  
 
   useEffect(() => {
     // Check if user is logged in and update the state
