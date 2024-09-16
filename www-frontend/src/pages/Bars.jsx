@@ -73,32 +73,26 @@ function Bars() {
         onChange={(e) => setSearchTerm(e.target.value)} // Actualiza el término de búsqueda
       />
       
-      <Grid container spacing={3}> {/* Grid container to manage bar cards */}
+      <Grid container spacing={3}>
         {filteredBars.map(bar => (
-          <Grid item xs={12} sm={6} md={4} key={bar.id}> {/* Responsive grid item */}
-            <Card sx={{ height: '100%' }}> {/* Card for each bar */}
+          <Grid item xs={12} sm={6} md={4} key={bar.id}>
+            <Card sx={{ height: '100%' }}>
               <CardContent>
-                <Typography variant="h5" component="div"> {/* Bar name */}
+                <Typography variant="h5" component="div">
                   {bar.name}
                 </Typography>
-                <Typography variant="body2" color="textSecondary"> {/* Bar address */}
-                  Address ID: {bar.address_id}
+                {/* Mostrar detalles de la dirección */}
+                <Typography variant="body2" color="textSecondary">
+                  Address: {bar.address.line1}, {bar.address.line2}, {bar.address.city}, {bar.address.country.name}
                 </Typography>
-                <Typography variant="body2" color="textSecondary"> {/* Bar latitude */}
-                  Latitude: {bar.latitude}
-                </Typography>
-                <Typography variant="body2" color="textSecondary"> {/* Bar longitude */}
-                  Longitude: {bar.longitude}
-                </Typography>
-                <RouterLink 
-                  to={`/bars/${bar.id}/events`} 
-                  style={{ textDecoration: 'none', color: '#6A0DAD' }} // Estilo para el enlace
+                <RouterLink
+                  to={`/bars/${bar.id}/events`}
+                  style={{ textDecoration: 'none', color: '#6A0DAD' }}
                 >
                   <Typography variant="body2" color="primary">
                     View Events
                   </Typography>
                 </RouterLink>
-                {/* Add more bar details here as needed */}
               </CardContent>
             </Card>
           </Grid>
