@@ -3,7 +3,7 @@ require 'factory_bot_rails'
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
+
 # Example:
 #
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
@@ -58,6 +58,16 @@ if Rails.env.development?
     beers.sample(3).each do |beer|
       FactoryBot.create(:review, user: user, beer: beer, rating: rand(1.0..5.0).round(1), text: Faker::Lorem.sentence(word_count: 15))
     end
+  end
+
+  # Crear un usuario por defecto sin dirección
+  default_user = FactoryBot.create(:user, first_name: 'Default', last_name: 'User', email: 'default@example.com', handle: 'defaultuser', password: 'password', password_confirmation: 'password')
+  
+  # Crear amigos para el usuario por defecto
+  # Asegúrate de que `users` tenga al menos 2 usuarios para crear amistades.
+  friends = users.reject { |user| user == default_user }.sample(2) # Elige 2 usuarios distintos
+  friends.each do |friend|
+    FactoryBot.create(:friendship, user: default_user, friend: friend, bar: bars.sample)
   end
 
 end
