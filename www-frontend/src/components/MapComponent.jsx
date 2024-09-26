@@ -20,7 +20,7 @@ const MapComponent = ({ lat, lng }) => {
         zoom={13}
         center={center}
       >
-        <MarkerF position={center} />
+        <MarkerF position={center}/>
       </GoogleMap>
     </LoadScript>
   );
