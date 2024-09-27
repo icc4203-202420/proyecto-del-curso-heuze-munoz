@@ -5,11 +5,11 @@ class API::V1::UsersController < ApplicationController
 
   def index
     @users = User.includes(:reviews, :address => :country).all
-    render json: @users, include: 'address.country'
+    render json: @users
   end
 
   def show
-    render json: @user, include: 'address.country'
+    render json: @user
   end
 
   def create

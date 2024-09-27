@@ -33,36 +33,48 @@ function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
-
+  
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+  
     if (password !== passwordConfirmation) {
       setError('Passwords do not match');
       return;
     }
-
+  
+    const userData = {
+      user: {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        handle,
+        password,
+        password_confirmation: passwordConfirmation,
+      }
+    };
+  
+    // Solo agregar address_attributes si countryId no es null
+    if (countryId) {
+      userData.user.address_attributes = {
+        line1: addressLine1,
+        line2: addressLine2,
+        city: city,
+        country_id: countryId
+      };
+    }
+  
     try {
-      const response = await axios.post('http://localhost:3001/api/v1/signup', {
-        user: {
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          handle,
-          password,
-          password_confirmation: passwordConfirmation,
-          address: {
-            line1: addressLine1,
-            line2: addressLine2,
-            city: city,
-            country_id: countryId
-          }
-        }
-      });
+      const response = await axios.post('http://localhost:3001/api/v1/signup', userData);
       setSuccess('Registration successful!');
-      navigate('/login'); // Redirigir al login después de registrarse
+      navigate('/login');
     } catch (error) {
+      console.log(error.response?.data);
       setError('Registration failed. Please try again.');
     }
   };
-
+  
   return (
     <Box sx={{ padding: '16px', display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ maxWidth: 400, width: '100%' }}>
@@ -166,13 +178,15 @@ function Register() {
               <InputLabel>Country</InputLabel>
               <Select
                 value={countryId}
-                onChange={(e) => setCountryId(e.target.value)}
+                onChange={(e) => setCountryId(parseInt(e.target.value, 10))}
                 label="Country"
               >
-                {countries.map(country => (
-                  <MenuItem key={country.id} value={country.id}>
-                    {country.name}
-                  </MenuItem>
+                {countries
+                  .sort((a, b) => a.name.localeCompare(b.name)) // Ordena los países alfabéticamente
+                  .map(country => (
+                    <MenuItem key={country.id} value={country.id}>
+                      {country.name}
+                    </MenuItem>
                 ))}
               </Select>
             </FormControl>

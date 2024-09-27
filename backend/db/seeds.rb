@@ -18,6 +18,9 @@ if Rails.env.development?
   # Crear países
   countries = FactoryBot.create_list(:country, 5)
 
+  # Asegurarse de que Chile esté en la lista de países
+  countries << FactoryBot.create(:country, name: 'Chile') unless countries.any? { |country| country.name == 'Chile' }
+
   # Crear cervecerías (breweries) con marcas (brands) y cervezas (beers)
   countries.map do |country|
     FactoryBot.create(:brewery_with_brands_with_beers, countries: [country])
