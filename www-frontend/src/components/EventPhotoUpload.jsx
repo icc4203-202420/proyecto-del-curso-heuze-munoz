@@ -18,7 +18,7 @@ function EventPhotoUpload({ eventId }) {
       await axios.post(`http://localhost:3001/api/v1/events/${eventId}/event_pictures`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `${localStorage.getItem('token')}`,
+          Authorization: `${localStorage.getItem('authToken')}`,
         },
       });
       alert('Image uploaded successfully!');

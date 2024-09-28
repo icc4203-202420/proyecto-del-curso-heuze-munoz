@@ -105,7 +105,7 @@ function EventShow() {
           ) : (
             <Typography variant="body2">No attendees yet.</Typography>
           )}
-          <Typography variant="h6" sx={{ marginTop: '24px', fontWeight: 'bold' }}>Attendees:</Typography>
+          <Typography variant="h6" sx={{ marginTop: '24px', fontWeight: 'bold' }}>Event's Photos:</Typography>
           <EventPhotoUpload eventId={eventId} />
         <EventGallery eventId={eventId} />
         </CardContent>

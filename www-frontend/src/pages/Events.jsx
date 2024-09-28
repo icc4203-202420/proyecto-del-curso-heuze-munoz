@@ -24,9 +24,7 @@ function Events() {
           throw new Error('User session not found. Please log in again.');
         }
 
-        const eventsResponse = await axios.get('http://localhost:3001/api/v1/events', {
-          headers: { Authorization: `${token}` }
-        });
+        const eventsResponse = await axios.get('http://localhost:3001/api/v1/events',{headers: { Authorization: `${token}` }});
         setEvents(eventsResponse.data.events);
       } catch (error) {
         console.error("There was an error fetching the events data!", error);

@@ -28,7 +28,7 @@ function BarsEvents() {
           throw new Error('User session not found. Please log in again.');
         }
 
-        const eventsResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events`);
+        const eventsResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events`,{headers: { Authorization: `${token}` }});
         setEvents(eventsResponse.data.events);
 
         const barResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}`);

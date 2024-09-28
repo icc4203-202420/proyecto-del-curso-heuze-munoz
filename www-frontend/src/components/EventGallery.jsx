@@ -11,7 +11,7 @@ function EventGallery({ eventId }) {
           `http://localhost:3001/api/v1/events/${eventId}/event_pictures`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `${localStorage.getItem('authToken')}`,
             },
           }
         );
