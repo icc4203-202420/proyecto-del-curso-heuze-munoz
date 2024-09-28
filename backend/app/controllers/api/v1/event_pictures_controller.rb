@@ -6,8 +6,11 @@ class API::V1::EventPicturesController < ApplicationController
 
   def index
     @event_pictures = @event.event_pictures
+  
     render json: @event_pictures.map { |pic|
-      pic.as_json.merge(image_url: pic.full_image_url(request.base_url))
+      pic.as_json.merge(
+        image_url: url_for(pic.image)
+      )
     }
   end
 

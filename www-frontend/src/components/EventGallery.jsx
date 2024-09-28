@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Grid, Card, CardMedia, CardContent, Typography, Box } from '@mui/material';
 
 function EventGallery({ eventId }) {
   const [pictures, setPictures] = useState([]);
@@ -25,18 +26,27 @@ function EventGallery({ eventId }) {
   }, [eventId]);
 
   return (
-    <div style={{ overflowY: 'scroll', maxHeight: '80vh' }}>
-      {pictures.map((picture) => (
-        <div key={picture.id}>
-          <img
-            src={picture.image_url}
-            alt={picture.description}
-            style={{ width: '100%', marginBottom: '10px' }}
-          />
-          <p>{picture.description}</p>
-        </div>
-      ))}
-    </div>
+    <Box sx={{ overflowY: 'scroll', maxHeight: '80vh', padding: '16px' }}>
+      <Grid container spacing={2}>
+        {pictures.map((picture) => (
+          <Grid item xs={12} sm={6} md={4} key={picture.id}>
+            <Card sx={{ borderRadius: '12px', boxShadow: 3 }}>
+              <CardMedia
+                component="img"
+                image={picture.image_url}
+                alt={picture.description}
+                sx={{ height: 200, objectFit: 'cover' }}
+              />
+              <CardContent>
+                <Typography variant="body2" color="textSecondary">
+                  {picture.description}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 }
 
