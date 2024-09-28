@@ -12,7 +12,6 @@ function Bars() {
     axios.get('http://localhost:3001/api/v1/bars')
       .then(response => {
         setBars(response.data.bars);
-        console.log(response.data);
       })
       .catch(error => {
         console.error('There was an error fetching the bars!', error);

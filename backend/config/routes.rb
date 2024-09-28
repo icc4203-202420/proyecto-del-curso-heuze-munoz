@@ -28,7 +28,10 @@ Rails.application.routes.draw do
           resources :attendances, only: [:index, :create]
         end
       end
-      resources :events, only: [:show, :create, :update, :destroy]
+      resources :events, only: [:index, :show, :create, :update, :destroy] do 
+        resources :event_pictures, only: [:create, :index]
+        resources :attendances, only: [:index, :create]
+      end
       resources :beers do
         resources :reviews, index: [:show]
       end

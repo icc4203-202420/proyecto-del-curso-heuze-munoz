@@ -43,7 +43,7 @@ const Login = () => {
   
 
   return (
-    <Container maxWidth="xs">
+    <Container maxWidth="xs" sx={{background: 'white', paddingBottom: '20px'}}>
       <Typography variant="h5" gutterBottom>
         Login
       </Typography>
@@ -77,10 +77,12 @@ const Login = () => {
         color="secondary"
         fullWidth
         onClick={() => navigate('/signup')} // Navega a la página de registro
-        sx={{ marginTop: '16px' }}
+        sx={{ marginTop: '16px' , marginBottom: '16px'}}
       >
         Don't have an account? Sign Up
       </Button>
+      <Typography color='secondary'>Email: default@example.com</Typography>
+      <Typography color='secondary'>PW: password</Typography>
     </Container>
   );
 };

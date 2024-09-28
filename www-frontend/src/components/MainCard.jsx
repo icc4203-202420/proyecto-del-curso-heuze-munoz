@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PersonIcon from '@mui/icons-material/Person';
+import EventIcon from '@mui/icons-material/Event';
 
 function MainCard() {
   const navigate = useNavigate();
@@ -56,6 +57,12 @@ function MainCard() {
               <MenuBookIcon />
             </ListItemIcon>
             <ListItemText primary="Bars" />
+          </ListItem>
+          <ListItem button component={Link} to="/events">
+            <ListItemIcon>
+              <EventIcon />
+            </ListItemIcon>
+            <ListItemText primary="Events" />
           </ListItem>
         </List>
       </Paper>

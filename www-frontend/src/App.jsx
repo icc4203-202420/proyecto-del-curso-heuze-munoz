@@ -12,6 +12,8 @@ import Users from './pages/Users';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import BarsMap from './pages/BarsMap';
+import Events from './pages/Events'
+import EventsDetail from './pages/EventsDetail'
 
 function App() {
   return (
@@ -41,6 +43,8 @@ function App() {
             <Route path="/bars" element={<Bars />} />
             <Route path="/barsMap" element={<BarsMap />} />
             <Route path="/bars/:barId/events" element={<BarsEvents />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/events/:eventId" element={<EventsDetail />} />
           </Routes>
         </Box>
         <BotNav />
