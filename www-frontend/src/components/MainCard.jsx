@@ -58,7 +58,7 @@ function MainCard() {
             </ListItemIcon>
             <ListItemText primary="Bars" />
           </ListItem>
-          <ListItem button component={Link} to="/events">
+          <ListItem button component='a' href="/events">
             <ListItemIcon>
               <EventIcon />
             </ListItemIcon>
