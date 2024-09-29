@@ -10,7 +10,7 @@ class API::V1::EventPicturesController < ApplicationController
     render json: @event_pictures.map { |pic|
       pic.as_json.merge(
         image_url: url_for(pic.image), 
-        tagged_friends: pic.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } } # Cambié friend_id a user_id
+        tagged_friends: pic.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
       )
     }
   end
@@ -22,13 +22,13 @@ class API::V1::EventPicturesController < ApplicationController
     if @event_picture.save
       # Guarda los amigos etiquetados
       tagged_friends_params.each do |friend_id|
-        TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id) # Cambié friend_id a user_id
+        TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id)
       end
 
       # Renderiza la respuesta incluyendo los amigos etiquetados
       render json: @event_picture.as_json.merge(
         image_url: url_for(@event_picture.image),
-        tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } } # Cambié friend_id a user_id
+        tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
       ), status: :created
     else
       render json: { errors: @event_picture.errors.full_messages }, status: :unprocessable_entity
@@ -47,6 +47,13 @@ class API::V1::EventPicturesController < ApplicationController
 
   # Método para obtener los amigos etiquetados del parámetro
   def tagged_friends_params
-    params[:tagged_friends] || [] # Asegúrate de enviar esto desde el frontend
+    # Intenta parsear tagged_friends como JSON, o devuelve un array vacío si hay un error
+    return [] unless params[:tagged_friends]
+
+    begin
+      JSON.parse(params[:tagged_friends]).map { |friend| friend['id'] } # Extrae solo los IDs de los amigos
+    rescue JSON::ParserError
+      [] # Devuelve un array vacío si el JSON es inválido
+    end
   end
 end

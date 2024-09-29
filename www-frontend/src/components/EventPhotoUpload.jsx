@@ -6,7 +6,7 @@ function EventPhotoUpload({ eventId, attendees }) {
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState('');
   const [taggedAttendees, setTaggedAttendees] = useState([]);
-  console.log(attendees)
+
   const handleCapture = (e) => {
     setImage(e.target.files[0]);
   };
@@ -17,7 +17,11 @@ function EventPhotoUpload({ eventId, attendees }) {
     const formData = new FormData();
     formData.append('event_picture[image]', image);
     formData.append('event_picture[description]', description);
-    formData.append('tagged_attendees', JSON.stringify(taggedAttendees)); // Agrega los asistentes etiquetados
+    
+    // Solo agrega tagged_friends si hay asistentes etiquetados
+    if (taggedAttendees.length > 0) {
+      formData.append('tagged_friends', JSON.stringify(taggedAttendees));
+    }
 
     try {
       await axios.post(`http://localhost:3001/api/v1/events/${eventId}/event_pictures`, formData, {
@@ -66,11 +70,11 @@ function EventPhotoUpload({ eventId, attendees }) {
         onChange={(event, value) => setTaggedAttendees(value)}
         renderTags={(value, getTagProps) =>
           value.map((option, index) => (
-            <Chip variant="outlined" label={option.handle} {...getTagProps({ index })} key={option.id} /> // Accede a user.handle y user.id
+            <Chip variant="outlined" label={option.handle} {...getTagProps({ index })} key={option.id} />
           ))
         }
         renderInput={(params) => (
-          <TextField {...params} label="Tag Attendees" variant="outlined" placeholder="Select attendees" />
+          <TextField {...params} label="Tag Attendees (Optional)" variant="outlined" placeholder="Select attendees" />
         )}
         sx={{ width: '100%', marginBottom: '16px' }}
       />
@@ -78,7 +82,7 @@ function EventPhotoUpload({ eventId, attendees }) {
         variant="contained"
         color="primary"
         onClick={handleSubmit}
-        disabled={!image || !description || taggedAttendees.length === 0} // Deshabilita si no hay asistentes etiquetados
+        disabled={!image || !description} // Solo deshabilita si no hay imagen o descripción
         sx={{ width: '100%' }}
       >
         Upload Photo

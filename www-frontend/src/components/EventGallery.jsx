@@ -41,6 +41,19 @@ function EventGallery({ eventId }) {
                 <Typography variant="body2" color="textSecondary">
                   {picture.description}
                 </Typography>
+                {/* Mostrar los amigos etiquetados */}
+                {picture.tagged_friends && picture.tagged_friends.length > 0 && (
+                  <Box sx={{ marginTop: '8px' }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 'bold' }}>
+                      Tagged Users:
+                    </Typography>
+                    {picture.tagged_friends.map(friend => (
+                      <Typography key={friend.id} variant="body2" color="textPrimary">
+                        {friend.handle}
+                      </Typography>
+                    ))}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>

@@ -13,10 +13,27 @@ function Users() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  const isUserLoggedIn = () => {
+    const token = localStorage.getItem('authToken');
+    return !!token; // Si hay un token, retorna true, si no, false
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('authToken');
       const userId = localStorage.getItem('userId');
+
+      if (!isUserLoggedIn()) {
+        alert('You must be logged in to see the users list.');
+        navigate('/login');
+        return;
+      }
+  
+      if (!token || !userId) {
+        alert('User session not found. Please log in again.');
+        navigate('/login');
+        return;
+      }
 
       try {
         // Cargar los usuarios

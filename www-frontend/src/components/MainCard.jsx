@@ -13,7 +13,7 @@ function MainCard() {
   const handleUsersClick = (event) => {
     if (!isAuthenticated) {
       event.preventDefault(); // Evita la navegación si no está autenticado
-      alert('Debes iniciar sesión para ver la lista de usuarios.');
+      alert('You must be logged in to see the users list.');
       navigate('/login'); // Redirige a la página de login
     } else {
       navigate('/users'); // Si está autenticado, navega a la página de usuarios
