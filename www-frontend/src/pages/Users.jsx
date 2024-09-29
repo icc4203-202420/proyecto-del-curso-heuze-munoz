@@ -1,64 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Card, CardContent, Typography, Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Grid, Card, Chip, CardContent, Typography, Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete } from '@mui/material';
 
 function Users() {
   const [users, setUsers] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [open, setOpen] = useState(false);
-  const [event, setEvent] = useState(''); // Para almacenar el evento opcional
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const fetchData = async () => {
+      const token = localStorage.getItem('authToken');
+      const userId = localStorage.getItem('userId');
 
-    axios.get('http://localhost:3001/api/v1/users', {
-      headers: {
-        Authorization: `${token}`
+      try {
+        // Cargar los usuarios
+        const usersResponse = await axios.get('http://localhost:3001/api/v1/users', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        setUsers(usersResponse.data);
+
+        // Cargar los amigos del usuario actual
+        const friendsResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+          params: { user_id: userId },
+        });
+        setFriends(friendsResponse.data);
+        
+        // Cargar eventos
+        const eventsResponse = await axios.get('http://localhost:3001/api/v1/events', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        setEvents(eventsResponse.data.events);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    })
-    .then(response => {
-      setUsers(response.data);
-    })
-    .catch(error => {
-      console.error('Error fetching users:', error);
-    });
+    };
+
+    fetchData();
   }, [navigate]);
 
   const handleAddFriend = (user) => {
     setSelectedUser(user);
-    setOpen(true); // Abrir el cuadro de diálogo
+    setOpen(true);
   };
 
   const handleClose = () => {
-    setOpen(false); // Cerrar el cuadro de diálogo
-    setEvent(''); // Limpiar el campo del evento
+    setOpen(false);
+    setSelectedEvent(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const token = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
     
-    // Realizar la solicitud POST para agregar la amistad
-    axios.post('http://localhost:3001/api/v1/friendships', {
-      friend_id: selectedUser.id, // ID del usuario seleccionado
-      event_name: event // Evento opcional donde se conocieron
-    }, {
-      headers: {
-        Authorization: `${token}`
-      }
-    })
-    .then(response => {
+    try {
+      // Realizar la solicitud POST para agregar la amistad
+      const response = await axios.post(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
+        user_id: userId,
+        friend_id: selectedUser.id,
+        event_id: selectedEvent ? selectedEvent.id : null
+      }, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       console.log('Friendship created:', response.data);
-      handleClose(); // Cerrar el cuadro de diálogo después de agregar al amigo
-    })
-    .catch(error => {
+      handleClose();
+    } catch (error) {
       console.error('Error creating friendship:', error);
-    });
+    }
   };
 
-  // Filtrar usuarios basados en el término de búsqueda
+  // Filtrar usuarios según el término de búsqueda
   const filteredUsers = users.filter(user =>
     user.handle.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -72,33 +97,20 @@ function Users() {
         Go Back
       </Button>
       
-      {/* Cuadro de búsqueda */}
       <TextField
         label="Search Users"
         variant="outlined"
         fullWidth
         sx={{ 
           marginBottom: '16px',
-          '& .MuiInputBase-input': {
-            color: '#fff'
-          },
+          '& .MuiInputBase-input': { color: '#fff' },
           '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-              borderColor: '#fff'
-            },
-            '&:hover fieldset': {
-              borderColor: '#fff'
-            },
-            '&.Mui-focused fieldset': {
-              borderColor: '#fff'
-            }
+            '& fieldset': { borderColor: '#fff' },
+            '&:hover fieldset': { borderColor: '#fff' },
+            '&.Mui-focused fieldset': { borderColor: '#fff' }
           },
-          '& .MuiInputLabel-root': {
-            color: '#fff'
-          },
-          '& .MuiInputLabel-root.Mui-focused': {
-            color: '#fff'
-          },
+          '& .MuiInputLabel-root': { color: '#fff' },
+          '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
           backgroundColor: '#3f3f3f'
         }}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -111,35 +123,43 @@ function Users() {
               <CardContent>
                 <Typography variant="h5" component="div">
                   {user.handle}
+                  {/* Mostrar Chip si el usuario es amigo */}
+                  {friends.some(friend => friend.id === user.id) && (
+                    <Chip label="Friend" color="success" sx={{ marginLeft: '8px' }} />
+                  )}
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleAddFriend(user)} // Abrir el cuadro de diálogo al hacer clic
-                  sx={{ marginTop: '8px' }}
-                >
-                  Add Friend
-                </Button>
+                {/* Solo mostrar el botón si no es amigo */}
+                {!friends.some(friend => friend.id === user.id) && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleAddFriend(user)}
+                    sx={{ marginTop: '8px' }}
+                  >
+                    Add Friend
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* Cuadro de diálogo para agregar amigos */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add Friend</DialogTitle>
         <DialogContent>
           <Typography>
             Add {selectedUser?.handle} as a friend. Optionally, you can indicate the event where you met.
           </Typography>
-          <TextField
-            label="Event Name"
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            value={event}
-            onChange={(e) => setEvent(e.target.value)} // Almacenar el evento opcional
+          
+          <Autocomplete
+            options={Array.isArray(events) ? events : []}
+            getOptionLabel={(option) => option.name || ''}
+            renderInput={(params) => (
+              <TextField {...params} label="Event" variant="outlined" fullWidth margin="normal" />
+            )}
+            onChange={(event, newValue) => setSelectedEvent(newValue)}
+            value={selectedEvent}
           />
         </DialogContent>
         <DialogActions>

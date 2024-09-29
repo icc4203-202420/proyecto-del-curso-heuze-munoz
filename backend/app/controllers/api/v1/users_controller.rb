@@ -37,9 +37,15 @@ class API::V1::UsersController < ApplicationController
 
   def create_friendship
     friend = User.find(params[:friend_id])
-    bar_id = params[:bar_id] || default_bar_id # Proporciona un valor adecuado para bar_id
   
-    friendship = Friendship.new(user_id: @user.id, friend_id: friend.id, bar_id: bar_id)
+    # Verificar si se envió un event_id y obtener el bar_id desde el evento si existe
+    if params[:event_id].present?
+      event = Event.find_by(id: params[:event_id])
+      bar_id = event&.bar_id # Si hay un evento, se asigna el bar_id; si no, será nil
+    end
+  
+    # Crear la amistad sin un bar_id si no hay evento
+    friendship = Friendship.new(user_id: @user.id, friend_id: friend.id, bar_id: bar_id, event_id: params[:event_id])
   
     if friendship.save
       render json: { message: 'Friendship created successfully.' }, status: :ok
