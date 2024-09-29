@@ -80,7 +80,7 @@ function Register() {
       <Card sx={{ maxWidth: 400, width: '100%' }}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
-            Register
+            Sign Up
           </Typography>
           {error && (
             <Typography variant="body2" color="error" gutterBottom>

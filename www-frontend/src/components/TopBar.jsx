@@ -31,7 +31,6 @@ export default function TopBar() {
       .then(() => {
         // Logout exitoso
         localStorage.removeItem('authToken');
-        window.location.reload();
         navigate('/login');
       })
       .catch(err => {
@@ -39,13 +38,11 @@ export default function TopBar() {
         console.error("Error en logout:", err);
         // Limpiar el token local y redirigir al login
         localStorage.removeItem('authToken');
-        window.location.reload();
         navigate('/login');
       });
     } else {
       // Si no hay token, simplemente redirigir al login
       navigate('/login');
-      window.location.reload();
     }
   };
   
@@ -55,9 +52,7 @@ export default function TopBar() {
     const token = localStorage.getItem('authToken');
     const isLoggedIn = !!token;
     setLoggedIn(isLoggedIn); // Set loggedIn based on token presence
-    console.log('Token:', token);
-    console.log('Logged in:', isLoggedIn);
-  }, []);
+  }, [handleLogout]);
 
   return (
     <AppBar position="fixed" sx={{ bgcolor: '#6A0DAD', height: '64px', minWidth: '100%' }}>
@@ -82,7 +77,7 @@ export default function TopBar() {
           {loggedIn ? (
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           ) : (
-            <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
+            <MenuItem onClick={() => navigate('/login')}>Login/Sign Up</MenuItem>
           )}
         </Menu>
       </Toolbar>

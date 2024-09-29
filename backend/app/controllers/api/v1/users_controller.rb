@@ -29,6 +29,13 @@ class API::V1::UsersController < ApplicationController
     end
   end
 
+  # GET /api/v1/users/:id/attendances
+  def attendances
+    user = User.find(params[:id])
+    attendances = user.attendances.includes(:event)
+    render json: attendances.as_json(include: :event)
+  end
+
   def friendships
     @friendships = @user.friendships.includes(:friend)
     @friends = @friendships.map(&:friend)

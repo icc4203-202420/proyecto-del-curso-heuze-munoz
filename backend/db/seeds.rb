@@ -42,7 +42,7 @@ if Rails.env.development?
 
   # Crear eventos asociados a los bares
   events = bars.each_with_index.map do |bar, index|
-    FactoryBot.create(:event, bar: bar, name: "Event #{index + 1}")
+    FactoryBot.create(:event, bar: bar, name: "Event #{index + 1}", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac lacus lorem.")
   end
 
   # Crear relaciones de amistad entre usuarios

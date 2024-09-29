@@ -10,12 +10,12 @@ function BarsEvents() {
   const [barName, setBarName] = useState("");
   const [attendees, setAttendees] = useState({});
   const [friends, setFriends] = useState([]);
+  const [checkedInEvents, setCheckedInEvents] = useState({});
   const navigate = useNavigate();
 
-  // Verifica si el usuario está logueado
   const isUserLoggedIn = () => {
     const token = localStorage.getItem('authToken');
-    return !!token; // Si hay un token, retorna true, si no, false
+    return !!token;
   };
 
   useEffect(() => {
@@ -23,31 +23,39 @@ function BarsEvents() {
       try {
         const token = localStorage.getItem('authToken');
         const userId = localStorage.getItem('userId');
-
+    
         if (!token || !userId) {
           throw new Error('User session not found. Please log in again.');
         }
-
-        const eventsResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events`,{headers: { Authorization: `${token}` }});
+    
+        const eventsResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events`, { headers: { Authorization: `${token}` } });
         setEvents(eventsResponse.data.events);
-
+    
         const barResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}`);
         setBarName(barResponse.data.bar.name);
-
+    
         const friendsResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
           headers: { Authorization: `${token}` },
           params: { user_id: userId }
         });
-
+    
         const friendIds = friendsResponse.data.map(friend => friend.id);
         setFriends(friendIds);
-
+    
         const attendeesData = {};
         for (const event of eventsResponse.data.events) {
           const attendeesResponse = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events/${event.id}/attendances`);
           attendeesData[event.id] = attendeesResponse.data.attendances || [];
         }
         setAttendees(attendeesData);
+    
+        // Verificar si el usuario ya hizo check-in en los eventos
+        const checkedInResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/attendances`, { headers: { Authorization: `${token}` } });
+        const checkedInEventIds = checkedInResponse.data.map(attendance => attendance.event_id);
+        const checkedInEvents = {};
+        checkedInEventIds.forEach(eventId => { checkedInEvents[eventId] = true; });
+        setCheckedInEvents(checkedInEvents);
+    
       } catch (error) {
         console.error("There was an error fetching the data!", error);
         if (!isUserLoggedIn()) {
@@ -55,6 +63,7 @@ function BarsEvents() {
         }
       }
     };
+    
 
     fetchData();
   }, [barId, navigate]);
@@ -85,12 +94,14 @@ function BarsEvents() {
       });
 
       alert('Check-in successful!');
-      
+
       const response = await axios.get(`http://localhost:3001/api/v1/bars/${barId}/events/${eventId}/attendances`);
       setAttendees(prevAttendees => ({
         ...prevAttendees,
         [eventId]: response.data.attendances || []
       }));
+
+      setCheckedInEvents(prev => ({ ...prev, [eventId]: true }));
     } catch (error) {
       console.error("Error during check-in:", error);
       alert('There was an error during check-in. Please try again.');
@@ -98,7 +109,7 @@ function BarsEvents() {
   };
 
   return (
-    <Box sx={{ padding: '24px'}}>
+    <Box sx={{ padding: '24px' }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
         {barName} Events
       </Typography>
@@ -119,14 +130,30 @@ function BarsEvents() {
                 <Typography variant="body1" sx={{ marginTop: '8px' }}>
                   {event.description}
                 </Typography>
-                <Button 
-                  variant="contained" 
-                  color="secondary" 
-                  onClick={() => handleCheckIn(event.id)}
-                  sx={{ marginTop: '16px' }}
-                >
-                  Check-in
-                </Button>
+                {checkedInEvents[event.id] ? (
+                  <>
+                    <Typography variant="body1" sx={{ marginTop: '16px', fontWeight: 'bold', fontSize: '1.2rem', color: 'green' }}>
+                      Checked in!
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      onClick={() => navigate(`/events/${event.id}`)} 
+                      sx={{ marginTop: '16px' }}
+                    >
+                      View Details
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    variant="contained" 
+                    color="secondary" 
+                    onClick={() => handleCheckIn(event.id)}
+                    sx={{ marginTop: '16px' }}
+                  >
+                    Check-in
+                  </Button>
+                )}
                 <Typography variant="h6" sx={{ marginTop: '24px', fontWeight: 'bold' }}>Attendees:</Typography>
                 {attendees[event.id] && attendees[event.id].length > 0 ? (
                   attendees[event.id]

@@ -27,10 +27,7 @@ const Login = () => {
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', userId);
 
-        // Redirige a la página de inicio o a otra página
-        console.log('Login successful. Redirecting to home page...');
-        navigate('/'); // Redirige usando react-router
-        window.location.reload();
+        navigate('/');
       } else {
         setError('Login failed: No token or user ID received.');
       }

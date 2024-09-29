@@ -20,13 +20,6 @@ export default function BotNav() {
         }}
       >
         <BottomNavigationAction 
-          label="Search" 
-          icon={<SearchIcon />} 
-          onClick={() => {
-            // Aquí puedes agregar la lógica para la búsqueda cuando esté disponible
-          }} 
-        />
-        <BottomNavigationAction 
           label="Menu" 
           icon={<MenuIcon />} 
           component={RouterLink} 

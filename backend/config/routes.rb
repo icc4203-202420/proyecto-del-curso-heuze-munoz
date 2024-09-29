@@ -39,6 +39,7 @@ Rails.application.routes.draw do
         member do
           get 'friendships'
           post 'friendships', action: :create_friendship
+          get 'attendances'  
         end
         resources :reviews, only: [:index]
       end

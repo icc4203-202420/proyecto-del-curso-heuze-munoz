@@ -12,6 +12,7 @@ function Users() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
   const isUserLoggedIn = () => {
     const token = localStorage.getItem('authToken');
@@ -21,7 +22,6 @@ function Users() {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('authToken');
-      const userId = localStorage.getItem('userId');
 
       if (!isUserLoggedIn()) {
         alert('You must be logged in to see the users list.');
@@ -42,7 +42,8 @@ function Users() {
             Authorization: `${token}`,
           },
         });
-        setUsers(usersResponse.data);
+        const filteredUsers = usersResponse.data.filter(user => user.id !== userId);
+        setUsers(filteredUsers);
 
         // Cargar los amigos del usuario actual
         const friendsResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
@@ -93,7 +94,6 @@ function Users() {
           Authorization: `${token}`,
         },
       });
-      console.log('Friendship created:', response.data);
       handleClose();
     } catch (error) {
       console.error('Error creating friendship:', error);
@@ -102,7 +102,8 @@ function Users() {
 
   // Filtrar usuarios según el término de búsqueda
   const filteredUsers = users.filter(user =>
-    user.handle.toLowerCase().includes(searchTerm.toLowerCase())
+    user.handle.toLowerCase().includes(searchTerm.toLowerCase())&&
+    user.id !== Number(userId)
   );
 
   return (
