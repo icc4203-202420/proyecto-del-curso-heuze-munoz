@@ -102,13 +102,13 @@ function Users() {
 
   // Filtrar usuarios según el término de búsqueda
   const filteredUsers = users.filter(user =>
-    user.handle.toLowerCase().includes(searchTerm.toLowerCase())&&
+    user.handle.toLowerCase().includes(searchTerm.toLowerCase()) &&
     user.id !== Number(userId)
   );
 
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: '16px', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#ffffff' }}>
         Users Page
       </Typography>
       <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
@@ -121,15 +121,14 @@ function Users() {
         fullWidth
         sx={{ 
           marginBottom: '16px',
-          '& .MuiInputBase-input': { color: '#fff' },
+          '& .MuiInputBase-input': { color: '#000' },
           '& .MuiOutlinedInput-root': {
             '& fieldset': { borderColor: '#fff' },
             '&:hover fieldset': { borderColor: '#fff' },
             '&.Mui-focused fieldset': { borderColor: '#fff' }
           },
           '& .MuiInputLabel-root': { color: '#fff' },
-          '& .MuiInputLabel-root.Mui-focused': { color: '#fff' },
-          backgroundColor: '#3f3f3f'
+          '& .MuiInputLabel-root.Mui-focused': { color: '#fff' }
         }}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -137,7 +136,7 @@ function Users() {
       <Grid container spacing={2}>
         {filteredUsers.map(user => (
           <Grid item xs={12} sm={6} md={4} key={user.handle}>
-            <Card sx={{ height: '100%' }}>
+            <Card sx={{ height: '100%', backgroundColor: '#ffffff', borderRadius: '8px' }}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   {user.handle}

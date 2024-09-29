@@ -24,8 +24,8 @@ function Bars() {
   );
 
   return (
-    <Box sx={{ padding: '16px' ,minWidth: '100%'}}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: '16px', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#ffffff' }}>
         Bars Page
       </Typography>
 
@@ -44,11 +44,9 @@ function Bars() {
         variant="outlined"
         fullWidth
         sx={{ 
-          minWidth:'100%',
-          width: '100%',
           marginBottom: '16px',
           '& .MuiInputBase-input': {
-            color: '#fff' // Color del texto dentro del campo de búsqueda
+            color: '#000' // Color del texto dentro del campo de búsqueda
           },
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
@@ -66,8 +64,7 @@ function Bars() {
           },
           '& .MuiInputLabel-root.Mui-focused': {
             color: '#fff' // Color de la etiqueta cuando el campo está enfocado
-          },
-          backgroundColor: '#3f3f3f' // Color de fondo del campo de búsqueda (opcional)
+          }
         }}
         onChange={(e) => setSearchTerm(e.target.value)} // Actualiza el término de búsqueda
       />
@@ -75,7 +72,7 @@ function Bars() {
       <Grid container spacing={3}>
         {filteredBars.map(bar => (
           <Grid item xs={12} sm={6} md={4} key={bar.id}>
-            <Card sx={{ height: '100%' }}>
+            <Card sx={{ height: '100%', backgroundColor: '#ffffff', borderRadius: '8px' }}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   {bar.name}
@@ -84,14 +81,14 @@ function Bars() {
                 <Typography variant="body2" color="textSecondary">
                   Address: {bar.address.line1}, {bar.address.line2}, {bar.address.city}, {bar.address.country.name}
                 </Typography>
-                <RouterLink
-                  to={`/bars/${bar.id}/events`}
-                  style={{ textDecoration: 'none', color: '#6A0DAD' }}
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => navigate(`/bars/${bar.id}/events`)}
+                  sx={{ marginTop: '8px' }} // Margen superior para separar del texto
                 >
-                  <Typography variant="body2" color="primary">
-                    View Events
-                  </Typography>
-                </RouterLink>
+                  View Events
+                </Button>
               </CardContent>
             </Card>
           </Grid>

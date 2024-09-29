@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, TextField, Button, Typography, Card, CardContent, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Box, TextField, Button, Typography, Card, CardContent, MenuItem, Select, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
@@ -17,6 +17,7 @@ function Register() {
   const [countries, setCountries] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,17 +34,20 @@ function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
-  
+    setLoading(true);
+
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
+      setLoading(false);
       return;
     }
-  
+
     if (password !== passwordConfirmation) {
       setError('Passwords do not match');
+      setLoading(false);
       return;
     }
-  
+
     const userData = {
       user: {
         first_name: firstName,
@@ -54,8 +58,7 @@ function Register() {
         password_confirmation: passwordConfirmation,
       }
     };
-  
-    // Solo agregar address_attributes si countryId no es null
+
     if (countryId) {
       userData.user.address_attributes = {
         line1: addressLine1,
@@ -64,20 +67,21 @@ function Register() {
         country_id: countryId
       };
     }
-  
+
     try {
-      const response = await axios.post('http://localhost:3001/api/v1/signup', userData);
+      await axios.post('http://localhost:3001/api/v1/signup', userData);
       setSuccess('Registration successful!');
+      setLoading(false);
       navigate('/login');
     } catch (error) {
-      console.log(error.response?.data);
       setError('Registration failed. Please try again.');
+      setLoading(false);
     }
   };
-  
+
   return (
     <Box sx={{ padding: '16px', display: 'flex', justifyContent: 'center' }}>
-      <Card sx={{ maxWidth: 400, width: '100%' }}>
+      <Card sx={{ maxWidth: 500, width: '100%' }}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
             Sign Up
@@ -93,8 +97,11 @@ function Register() {
             </Typography>
           )}
           <form onSubmit={handleSubmit}>
+            <Typography variant="h6" gutterBottom>
+              Personal Information
+            </Typography>
             <TextField
-              label="First Name"
+              label="First Name *"
               variant="outlined"
               fullWidth
               sx={{ marginBottom: '16px' }}
@@ -103,7 +110,7 @@ function Register() {
               required
             />
             <TextField
-              label="Last Name"
+              label="Last Name *"
               variant="outlined"
               fullWidth
               sx={{ marginBottom: '16px' }}
@@ -112,7 +119,7 @@ function Register() {
               required
             />
             <TextField
-              label="Email"
+              label="Email *"
               type="email"
               variant="outlined"
               fullWidth
@@ -122,16 +129,17 @@ function Register() {
               required
             />
             <TextField
-              label="Handle"
+              label="Handle *"
               variant="outlined"
               fullWidth
               sx={{ marginBottom: '16px' }}
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
+              placeholder="e.g. johndoe123"
               required
             />
             <TextField
-              label="Password"
+              label="Password *"
               type="password"
               variant="outlined"
               fullWidth
@@ -141,7 +149,7 @@ function Register() {
               required
             />
             <TextField
-              label="Confirm Password"
+              label="Confirm Password *"
               type="password"
               variant="outlined"
               fullWidth
@@ -150,6 +158,10 @@ function Register() {
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               required
             />
+
+            <Typography variant="h6" gutterBottom>
+              Address (Optional)
+            </Typography>
             <TextField
               label="Address Line 1"
               variant="outlined"
@@ -182,28 +194,33 @@ function Register() {
                 label="Country"
               >
                 {countries
-                  .sort((a, b) => a.name.localeCompare(b.name)) // Ordena los países alfabéticamente
+                  .sort((a, b) => a.name.localeCompare(b.name))
                   .map(country => (
                     <MenuItem key={country.id} value={country.id}>
                       {country.name}
                     </MenuItem>
-                ))}
+                  ))}
               </Select>
             </FormControl>
+            <Typography variant="body2" color="textSecondary" gutterBottom>
+              * If you decide to add an address, the country is required.
+            </Typography>
             <Button
               type="submit"
               variant="contained"
               color="primary"
               fullWidth
               sx={{ marginBottom: '16px' }}
+              disabled={loading}
             >
-              Sign Up
+              {loading ? <CircularProgress size={24} /> : 'Sign Up'}
             </Button>
             <Button
-              variant="outlined"
-              color="secondary"
-              fullWidth
               onClick={() => navigate('/login')}
+              variant="outlined"
+              color="primary"
+              fullWidth
+              sx={{ marginBottom: '16px' }}
             >
               Already have an account? Login
             </Button>

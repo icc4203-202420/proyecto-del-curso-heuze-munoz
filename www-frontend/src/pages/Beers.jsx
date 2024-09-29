@@ -32,8 +32,8 @@ function Beers() {
   };
 
   return (
-    <Box sx={{ padding: '16px' }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: '16px', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ color: '#ffffff' }}>
         Beers Page
       </Typography>
       <Button onClick={() => navigate(-1)} variant="contained" color="primary" sx={{ marginBottom: '16px' }}>
@@ -48,7 +48,7 @@ function Beers() {
         sx={{
           marginBottom: '16px',
           '& .MuiInputBase-input': {
-            color: '#fff',
+            color: '#000',
           },
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
@@ -66,8 +66,7 @@ function Beers() {
           },
           '& .MuiInputLabel-root.Mui-focused': {
             color: '#fff',
-          },
-          backgroundColor: '#3f3f3f',
+          }
         }}
         onChange={(e) => setSearchTerm(e.target.value)} // Update search term
       />
@@ -75,7 +74,7 @@ function Beers() {
       <Grid container spacing={3}>
         {filteredBeers.map(beer => (
           <Grid item xs={12} sm={6} md={4} key={beer.id}>
-            <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => handleCardClick(beer.id)}>
+            <Card sx={{ height: '100%', cursor: 'pointer', backgroundColor: '#ffffff', borderRadius: '8px' }} onClick={() => handleCardClick(beer.id)}>
               <CardContent>
                 <Typography variant="h5" component="div">
                   {beer.name}

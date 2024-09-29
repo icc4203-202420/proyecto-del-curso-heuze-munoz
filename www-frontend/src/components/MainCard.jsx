@@ -32,37 +32,59 @@ function MainCard() {
       }}
     >
       <Paper
-        elevation={3}
+        elevation={6}
         sx={{
-          width: 300,
-          padding: '16px',
+          width: 320,
+          padding: '24px',
           textAlign: 'center',
+          borderRadius: '8px',
+          bgcolor: '#ffffff', // Fondo blanco del card
         }}
       >
         <List>
-          <ListItem button onClick={handleUsersClick}>
-            <ListItemIcon>
+          <ListItem button onClick={handleUsersClick} sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
+            <ListItemIcon sx={{ color: '#6A0DAD' }}>
               <PersonIcon />
             </ListItemIcon>
-            <ListItemText primary="Users" />
+            <ListItemText 
+              primary="Users" 
+              primaryTypographyProps={{
+                style: { color: '#6A0DAD', fontWeight: 'bold', fontSize: '1.1rem' }, // Cambia el color, negrita y tamaño
+              }} 
+            />
           </ListItem>
-          <ListItem button component="a" href="/beers">
-            <ListItemIcon>
+          <ListItem button component="a" href="/beers" sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
+            <ListItemIcon sx={{ color: '#6A0DAD' }}>
               <SportsBarIcon />
             </ListItemIcon>
-            <ListItemText primary="Beers" />
+            <ListItemText 
+              primary="Beers" 
+              primaryTypographyProps={{
+                style: { color: '#6A0DAD', fontWeight: 'bold', fontSize: '1.1rem' },
+              }} 
+            />
           </ListItem>
-          <ListItem button component="a" href="/bars">
-            <ListItemIcon>
+          <ListItem button component="a" href="/bars" sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
+            <ListItemIcon sx={{ color: '#6A0DAD' }}>
               <MenuBookIcon />
             </ListItemIcon>
-            <ListItemText primary="Bars" />
+            <ListItemText 
+              primary="Bars" 
+              primaryTypographyProps={{
+                style: { color: '#6A0DAD', fontWeight: 'bold', fontSize: '1.1rem' },
+              }} 
+            />
           </ListItem>
-          <ListItem button component='a' href="/events">
-            <ListItemIcon>
+          <ListItem button component='a' href="/events" sx={{ '&:hover': { bgcolor: '#e0e0e0' } }}>
+            <ListItemIcon sx={{ color: '#6A0DAD' }}>
               <EventIcon />
             </ListItemIcon>
-            <ListItemText primary="Events" />
+            <ListItemText 
+              primary="Events" 
+              primaryTypographyProps={{
+                style: { color: '#6A0DAD', fontWeight: 'bold', fontSize: '1.1rem' },
+              }} 
+            />
           </ListItem>
         </List>
       </Paper>
