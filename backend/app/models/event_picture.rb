@@ -5,4 +5,7 @@ class EventPicture < ApplicationRecord
   has_one_attached :image
 
   validates :image, presence: true
+
+  has_many :tagged_friends
+  has_many :users, through: :tagged_friends
 end

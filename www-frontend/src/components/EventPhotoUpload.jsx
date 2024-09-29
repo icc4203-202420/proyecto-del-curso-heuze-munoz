@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Box, Button, Typography, Input, TextField } from '@mui/material';
+import { Box, Button, Typography, Input, TextField, Autocomplete, Chip } from '@mui/material';
 
-function EventPhotoUpload({ eventId }) {
+function EventPhotoUpload({ eventId, attendees }) {
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState('');
-
+  const [taggedAttendees, setTaggedAttendees] = useState([]);
+  console.log(attendees)
   const handleCapture = (e) => {
     setImage(e.target.files[0]);
   };
 
   const handleSubmit = async () => {
-    if (!image) return;
+    if (!image || !description) return;
 
     const formData = new FormData();
     formData.append('event_picture[image]', image);
     formData.append('event_picture[description]', description);
+    formData.append('tagged_attendees', JSON.stringify(taggedAttendees)); // Agrega los asistentes etiquetados
 
     try {
       await axios.post(`http://localhost:3001/api/v1/events/${eventId}/event_pictures`, formData, {
@@ -28,6 +30,7 @@ function EventPhotoUpload({ eventId }) {
       // Reset the form
       setImage(null);
       setDescription('');
+      setTaggedAttendees([]); // Resetea los asistentes etiquetados
     } catch (error) {
       console.error(error);
       alert('Failed to upload image.');
@@ -56,11 +59,26 @@ function EventPhotoUpload({ eventId }) {
         onChange={(e) => setDescription(e.target.value)}
         sx={{ marginBottom: '16px' }}
       />
+      <Autocomplete
+        multiple
+        options={attendees} // Cambia aquí para usar attendees
+        getOptionLabel={(option) => option.handle} // Asegúrate de acceder correctamente a handle
+        onChange={(event, value) => setTaggedAttendees(value)}
+        renderTags={(value, getTagProps) =>
+          value.map((option, index) => (
+            <Chip variant="outlined" label={option.handle} {...getTagProps({ index })} key={option.id} /> // Accede a user.handle y user.id
+          ))
+        }
+        renderInput={(params) => (
+          <TextField {...params} label="Tag Attendees" variant="outlined" placeholder="Select attendees" />
+        )}
+        sx={{ width: '100%', marginBottom: '16px' }}
+      />
       <Button
         variant="contained"
         color="primary"
         onClick={handleSubmit}
-        disabled={!image || !description}
+        disabled={!image || !description || taggedAttendees.length === 0} // Deshabilita si no hay asistentes etiquetados
         sx={{ width: '100%' }}
       >
         Upload Photo

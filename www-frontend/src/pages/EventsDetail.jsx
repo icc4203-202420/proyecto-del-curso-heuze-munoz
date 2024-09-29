@@ -39,7 +39,15 @@ function EventShow() {
         setBar(barResponse.data.bar);
 
         const attendeesResponse = await axios.get(`http://localhost:3001/api/v1/events/${eventId}/attendances`);
-        setAttendees(attendeesResponse.data.attendances || []);
+        const attendeesData = attendeesResponse.data.attendances || [];
+        
+        // Mapeo de asistentes a objetos que contengan id y handle
+        const attendeesWithHandles = attendeesData.map(attendee => ({
+          id: attendee.user.id,
+          handle: attendee.user.handle,
+        }));
+        
+        setAttendees(attendeesWithHandles);
 
         const friendsResponse = await axios.get(`http://localhost:3001/api/v1/users/${userId}/friendships`, {
           headers: { Authorization: `${token}` },
@@ -88,16 +96,16 @@ function EventShow() {
           {attendees.length > 0 ? (
             attendees
               .sort((a, b) => {
-                if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
-                if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
+                if (friends.includes(a.id) && !friends.includes(b.id)) return -1;
+                if (!friends.includes(a.id) && friends.includes(b.id)) return 1;
                 return 0;
               })
               .map(attendee => (
-                <Box key={attendee.user.id} sx={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                <Box key={attendee.id} sx={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                   <Typography variant="body2" sx={{ marginRight: '8px' }}>
-                    {attendee.user.handle}
+                    {attendee.handle}
                   </Typography>
-                  {friends.includes(attendee.user.id) && (
+                  {friends.includes(attendee.id) && (
                     <Chip label="Friend" color="success" size="small" />
                   )}
                 </Box>
@@ -106,8 +114,8 @@ function EventShow() {
             <Typography variant="body2">No attendees yet.</Typography>
           )}
           <Typography variant="h6" sx={{ marginTop: '24px', fontWeight: 'bold' }}>Event's Photos:</Typography>
-          <EventPhotoUpload eventId={eventId} />
-        <EventGallery eventId={eventId} />
+          <EventPhotoUpload eventId={eventId} attendees={attendees} /> {/* Pasa asistentes aquí */}
+          <EventGallery eventId={eventId} />
         </CardContent>
       </Card>
     </Box>

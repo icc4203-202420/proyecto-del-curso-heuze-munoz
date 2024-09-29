@@ -6,10 +6,11 @@ class API::V1::EventPicturesController < ApplicationController
 
   def index
     @event_pictures = @event.event_pictures
-  
+
     render json: @event_pictures.map { |pic|
       pic.as_json.merge(
-        image_url: url_for(pic.image)
+        image_url: url_for(pic.image), 
+        tagged_friends: pic.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } } # Cambié friend_id a user_id
       )
     }
   end
@@ -19,7 +20,16 @@ class API::V1::EventPicturesController < ApplicationController
     @event_picture.user = current_user
 
     if @event_picture.save
-      render json: @event_picture, status: :created
+      # Guarda los amigos etiquetados
+      tagged_friends_params.each do |friend_id|
+        TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id) # Cambié friend_id a user_id
+      end
+
+      # Renderiza la respuesta incluyendo los amigos etiquetados
+      render json: @event_picture.as_json.merge(
+        image_url: url_for(@event_picture.image),
+        tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } } # Cambié friend_id a user_id
+      ), status: :created
     else
       render json: { errors: @event_picture.errors.full_messages }, status: :unprocessable_entity
     end
@@ -34,5 +44,9 @@ class API::V1::EventPicturesController < ApplicationController
   def event_picture_params
     params.require(:event_picture).permit(:description, :image)
   end
+
+  # Método para obtener los amigos etiquetados del parámetro
+  def tagged_friends_params
+    params[:tagged_friends] || [] # Asegúrate de enviar esto desde el frontend
+  end
 end
-  
