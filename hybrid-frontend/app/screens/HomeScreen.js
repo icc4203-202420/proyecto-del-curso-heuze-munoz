@@ -1,31 +1,45 @@
 import React from 'react';
-import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, List } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const getToken = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    return token;
+  const handleLogout = async () => {
+    // Aquí puedes eliminar el token o hacer la lógica que necesites para logout
+    await AsyncStorage.removeItem('authToken');
+    Alert.alert('Logged out', 'You have been logged out.', [
+      { text: 'OK', onPress: () => navigation.navigate('Login') }
+    ]);
   };
 
-  const isAuthenticated = !!getToken; // Verifica si el token está presente
+  const handleUsersClick = async () => {
+    const token = await AsyncStorage.getItem('authToken');
+    const isAuthenticated = !!token;
 
-  const handleUsersClick = () => {
     if (!isAuthenticated) {
       Alert.alert('Attention', 'You must be logged in to see the users list.', [
-        { text: 'OK', onPress: () => navigation.navigate('Login') }, // Redirige a la página de login
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
       ]);
     } else {
-      navigation.navigate('Users'); // Si está autenticado, navega a la página de usuarios
+      navigation.navigate('Users');
     }
   };
 
   return (
     <View style={styles.container}>
+      {/* Header personalizado */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>BeerBuddy</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Card de la lista de opciones */}
       <Card style={styles.card}>
         <Card.Content>
           <List.Section>
@@ -67,12 +81,26 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingTop: 64,
   },
+  header: {
+    height: 60,
+    backgroundColor: '#6A0DAD',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  logoutButton: {
+    padding: 8,
+  },
   card: {
-    width: 320,
+    margin: 16,
     padding: 24,
     borderRadius: 8,
     backgroundColor: '#ffffff', // Fondo blanco del card

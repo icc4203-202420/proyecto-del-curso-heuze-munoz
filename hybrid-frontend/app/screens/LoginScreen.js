@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
 
   const saveUserId = async (userId) => {
     try {
-      await AsyncStorage.setItem('userId', userId);
+      await AsyncStorage.setItem('userId', userId.stringify);
       console.log('User id guardado');
     } catch (error) {
       console.error('Error al guardar el user id:', error);
@@ -40,7 +40,6 @@ const LoginScreen = ({ navigation }) => {
         body: JSON.stringify({ user: { email, password } }),
       });
       const data = await response.json();
-      console.log(data)
       
       const token = response.headers.get('authorization');
       const userId = data.status.data.user.id;
