@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@env';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,6 @@ const LoginScreen = ({ navigation }) => {
   const saveToken = async (token) => {
     try {
       await AsyncStorage.setItem('authToken', token);
-      console.log('Token guardado');
     } catch (error) {
       console.error('Error al guardar el token:', error);
     }
@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://topical-pheasant-primary.ngrok-free.app/api/v1/login', {
+      const response = await fetch(`${API_BASE_URL}/api/v1/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: { email, password } }),
@@ -49,7 +49,6 @@ const LoginScreen = ({ navigation }) => {
         saveToken(token);
         saveUserId(userId);
 
-        Alert.alert('Login successful!', 'Welcome back!');
         navigation.navigate('Home');
       } else {
         Alert.alert('Login failed', 'No token or user ID received.');

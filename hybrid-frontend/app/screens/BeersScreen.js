@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@env';
 
 const Beers = () => {
   const [beers, setBeers] = useState([]);
@@ -9,14 +10,36 @@ const Beers = () => {
   const navigation = useNavigation(); // Hook for navigation
 
   useEffect(() => {
-    fetch('https://topical-pheasant-primary.ngrok-free.app/api/v1/beers')
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchBeers = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (!token) {
+          Alert.alert('Not Authenticated', 'You need to log in to view the beers.');
+          navigation.navigate('Login');
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/beers`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token,
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Request failed with status ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
         setBeers(data.beers);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching beers:', error);
-      });
+        Alert.alert('Error', 'Could not fetch beers. Please try again later.');
+      }
+    };
+
+    fetchBeers();
   }, []);
 
   // Filter beers based on search term
@@ -32,7 +55,7 @@ const Beers = () => {
         { text: 'OK', onPress: () => navigation.navigate('Login') },
       ]);
     } else {
-      navigation.navigate('BeerDetails', { beerId }); // Navigate to beer details
+      navigation.navigate('BeerDetail', { beerId }); // Navigate to beer details
     }
   };
 
