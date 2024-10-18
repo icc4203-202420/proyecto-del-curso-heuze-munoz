@@ -93,8 +93,6 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.3.3)
     connection_pool (2.4.1)
-    countries (6.0.1)
-      unaccent (~> 0.3)
     crass (1.0.6)
     database_cleaner-active_record (2.2.0)
       activerecord (>= 5.a)
@@ -298,7 +296,6 @@ GEM
     timeout (0.4.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unaccent (0.4.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     warden-jwt_auth (0.10.0)
@@ -324,7 +321,6 @@ DEPENDENCIES
   active_storage_validations
   activerecord-import
   bootsnap
-  countries
   database_cleaner-active_record
   debug
   devise

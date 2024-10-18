@@ -1,33 +1,36 @@
 class API::V1::ReviewsController < ApplicationController
   respond_to :json
-  before_action :set_user, only: [:create]
+  before_action :authenticate_user!, only: [:create, :update, :destroy]
   before_action :set_review, only: [:show, :update, :destroy]
   before_action :set_beer
-  before_action :verify_jwt_token, only: [:create, :update, :destroy]
 
   def index
     reviews = @beer.reviews.includes(:user)
     render json: reviews, include: [:user]
   end
-
+  
   def show
     if @review
-      render json: { review: @review.as_json }, status: :ok
+      render json: { review: @review.as_json(include: :user) }, status: :ok
     else
       render json: { error: "Review not found" }, status: :not_found
     end
   end
+  
 
   def create
     review = @beer.reviews.new(review_params)
-    review.user = User.find(params[:user_id])
-
+    review.user = current_user
+  
     if review.save
-      render json: { review: review }, status: :created
+      render json: review, include: [:user], status: :created
     else
+      logger.debug "Review errors: #{review.errors.full_messages}"
       render json: { errors: review.errors.full_messages }, status: :unprocessable_entity
     end
   end
+  
+  
 
   def update
     if @review.update(review_params)
@@ -55,16 +58,7 @@ class API::V1::ReviewsController < ApplicationController
     render json: { error: 'Beer not found' }, status: :not_found
   end
 
-  def set_user
-    @user = User.find(params[:user_id]) 
-  end
-
   def review_params
-    params.require(:review).permit(:id, :text, :rating, :beer_id)
+    params.require(:review).permit(:text, :rating)
   end
-  
-  def verify_jwt_token
-    authenticate_user!
-    head :unauthorized unless current_user
-  end 
 end
