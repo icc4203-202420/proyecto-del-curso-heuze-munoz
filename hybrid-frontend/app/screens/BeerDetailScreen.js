@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '@env';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 import jwt_decode from 'jwt-decode';
 import { Rating } from 'react-native-ratings';
 import ReviewForm from './ReviewForm'; // Ensure the path is correct
@@ -42,7 +42,7 @@ const BeerDetail = () => {
         const decodedToken = jwt_decode(token);
         setCurrentUserId(parseInt(decodedToken.sub, 10)); // Ensure it's a number
 
-        const beerResponse = await fetch(`${API_BASE_URL}/api/v1/beers/${beerId}`, {
+        const beerResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/beers/${beerId}`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `${token}`,
@@ -58,7 +58,7 @@ const BeerDetail = () => {
         setBeer(beerData.beer);
 
         if (beerData.beer && beerData.beer.brand_id) {
-          const breweryResponse = await fetch(`${API_BASE_URL}/api/v1/breweries/${beerData.beer.brand_id}`, {
+          const breweryResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/breweries/${beerData.beer.brand_id}`, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `${token}`,
@@ -76,7 +76,7 @@ const BeerDetail = () => {
         }
 
         // Fetch reviews
-        const reviewsResponse = await fetch(`${API_BASE_URL}/api/v1/beers/${beerId}/reviews`, {
+        const reviewsResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/beers/${beerId}/reviews`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `${token}`,

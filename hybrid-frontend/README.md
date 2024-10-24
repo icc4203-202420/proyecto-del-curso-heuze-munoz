@@ -24,11 +24,11 @@ Este URL será necesario para configurar el frontend.
 ### 3. Configurar el Frontend
 En el directorio `hybrid-frontend`, crea un archivo `.env` y añade la siguiente línea:
 ```
-API_BASE_URL={URL}
+EXPO_PUBLIC_API_BASE_URL={URL}
 ```
 Reemplaza `{URL}` por el enlace generado por `ngrok` en el paso anterior. El archivo `.env` debe verse así:
 ```
-API_BASE_URL=https://b51f-152-230-18-212.ngrok-free.app
+EXPO_PUBLIC_API_BASE_URL=https://b51f-152-230-18-212.ngrok-free.app
 ```
 
 ### 4. Iniciar el Frontend

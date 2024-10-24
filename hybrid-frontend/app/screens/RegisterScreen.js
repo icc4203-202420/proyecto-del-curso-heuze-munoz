@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
-import { API_BASE_URL } from '@env';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
+
+
 function RegisterScreen({navigation }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -20,7 +22,7 @@ function RegisterScreen({navigation }) {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch('${API_BASE_URL}/api/v1/countries'); // Cambia localhost por tu IP si es necesario
+        const response = await fetch('${EXPO_PUBLIC_API_BASE_URL}/api/v1/countries'); // Cambia localhost por tu IP si es necesario
         const data = await response.json();
         setCountries(data);
       } catch (err) {
@@ -69,7 +71,7 @@ function RegisterScreen({navigation }) {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/signup`, {
+      const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

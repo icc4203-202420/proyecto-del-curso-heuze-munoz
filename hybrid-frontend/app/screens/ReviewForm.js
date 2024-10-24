@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } 
 import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '@env';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const ReviewForm = React.memo(({ beerId, onReviewSubmitted }) => {
   const [reviewText, setReviewText] = useState('');
@@ -30,7 +30,7 @@ const ReviewForm = React.memo(({ beerId, onReviewSubmitted }) => {
         text: reviewText.trim(),
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/beers/${beerId}/reviews`, {
+      const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/beers/${beerId}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

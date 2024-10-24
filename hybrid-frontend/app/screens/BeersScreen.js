@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '@env';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const Beers = () => {
   const [beers, setBeers] = useState([]);
@@ -19,7 +19,7 @@ const Beers = () => {
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/v1/beers`, {
+        const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/beers`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token,

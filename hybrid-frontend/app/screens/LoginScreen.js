@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '@env';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -18,37 +18,42 @@ const LoginScreen = ({ navigation }) => {
 
   const saveUserId = async (userId) => {
     try {
-      await AsyncStorage.setItem('userId', userId.stringify);
-      console.log('User id guardado');
+      await AsyncStorage.setItem('userId', userId.toString());
     } catch (error) {
       console.error('Error al guardar el user id:', error);
     }
   };
 
-  const getToken = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    return token;
-  };
-
   const handleLogin = async () => {
     setLoading(true);
-
+  
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/login`, {
+      const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: { email, password } }),
       });
+  
+      // Verifica si la respuesta es JSON antes de parsearla
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const errorText = await response.text();
+        console.error('Error response (not JSON):', errorText);
+        Alert.alert('Login failed', 'Unexpected server response');
+        setLoading(false);
+        return;
+      }
+  
       const data = await response.json();
-      
+  
       const token = response.headers.get('authorization');
       const userId = data.status.data.user.id;
-
+  
       if (token && userId) {
         // Almacena el token y userId
         saveToken(token);
         saveUserId(userId);
-
+  
         navigation.navigate('Home');
       } else {
         Alert.alert('Login failed', 'No token or user ID received.');
@@ -59,7 +64,7 @@ const LoginScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
