@@ -22,7 +22,7 @@ function RegisterScreen({navigation }) {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch('${EXPO_PUBLIC_API_BASE_URL}/api/v1/countries'); // Cambia localhost por tu IP si es necesario
+        const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/countries`); // Cambia localhost por tu IP si es necesario
         const data = await response.json();
         setCountries(data);
       } catch (err) {

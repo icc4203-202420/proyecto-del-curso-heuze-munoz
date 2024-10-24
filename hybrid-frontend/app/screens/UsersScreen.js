@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, Modal } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, Modal, ScrollView, TouchableOpacity } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 import { Picker } from '@react-native-picker/picker';
+import { Ionicons } from '@expo/vector-icons';
 
 const UsersScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
@@ -14,33 +15,33 @@ const UsersScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const isUserLoggedIn = async () => {
-    const authToken = await AsyncStorage.getItem('authToken');
+    const authToken = await SecureStore.getItemAsync('authToken');
     return !!authToken;
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const authToken = await AsyncStorage.getItem('authToken');
-      const userId = await AsyncStorage.getItem('userId');
-      
+      const authToken = await SecureStore.getItemAsync('authToken');
+      const userId = await SecureStore.getItemAsync('userId');
+
       if (!(await isUserLoggedIn())) {
         Alert.alert('You must be logged in to see the users list.');
         navigation.navigate('Login');
         return;
       }
-  
+
       if (!authToken || !userId) {
         Alert.alert('User session not found. Please log in again.');
         navigation.navigate('Login');
         return;
       }
-  
+
       try {
         // Cargar los usuarios
         const usersResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users`, {
-          headers: { Authorization: authToken, 'Content-Type': 'application/json'},
+          headers: { Authorization: authToken, 'Content-Type': 'application/json' },
         });
-  
+
         if (!usersResponse.ok) {
           if (usersResponse.status === 401) {
             Alert.alert('Unauthorized. Please log in again.');
@@ -50,11 +51,11 @@ const UsersScreen = ({ navigation }) => {
           }
           return;
         }
-  
+
         const usersData = await usersResponse.json();
-        const filteredUsers = usersData.filter((user) => user.id !== userId);
+        const filteredUsers = usersData.filter((user) => user.id.toString() !== userId); // Excluir el usuario actual
         setUsers(filteredUsers);
-  
+
         // Cargar los amigos del usuario actual
         const friendsResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users/${userId}/friendships?user_id=${userId}`, {
           headers: {
@@ -62,25 +63,25 @@ const UsersScreen = ({ navigation }) => {
             'Content-Type': 'application/json',
           },
         });
-        
+
         const friendsData = await friendsResponse.json();
         setFriends(friendsData);
-  
+
         // Cargar eventos
         const eventsResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/events`, {
-          headers: { Authorization: `${authToken}` },
+          headers: { Authorization: authToken },
         });
-  
+
         const eventsData = await eventsResponse.json();
         setEvents(eventsData.events);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-  
+
     fetchData();
   }, [navigation]);
-  
+
   const handleAddFriend = (user) => {
     setSelectedUser(user);
     setSelectedEvent(null); // Reiniciar selección de evento
@@ -88,14 +89,14 @@ const UsersScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    const authToken = await AsyncStorage.getItem('authToken');
-    const userId = await AsyncStorage.getItem('userId');
+    const authToken = await SecureStore.getItemAsync('authToken');
+    const userId = await SecureStore.getItemAsync('userId');
 
     if (!selectedUser) {
       Alert.alert('No user selected.');
       return;
     }
-    
+
     try {
       await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users/${userId}/friendships`, {
         method: 'POST',
@@ -110,8 +111,6 @@ const UsersScreen = ({ navigation }) => {
         }),
       });
       setModalVisible(false);
-      // Opcional: Actualiza la lista de amigos después de agregar un nuevo amigo
-      // await fetchFriends();
     } catch (error) {
       console.error('Error creating friendship:', error);
     }
@@ -124,8 +123,6 @@ const UsersScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Users Page</Text>
-      <Button title="Go Back" onPress={() => navigation.goBack()} />
-
       <TextInput
         style={styles.input}
         placeholder="Search Users"
@@ -138,9 +135,10 @@ const UsersScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.userCard}>
-            <Text>{item.handle}</Text>
-            {/* Verificar si el usuario ya es amigo */}
-            {!friends.some(friend => friend.id === item.id) && (
+            <Text style={styles.userHandle}>{item.handle}</Text>
+            {friends.some(friend => friend.id === item.id) ? (
+              <Ionicons name="checkmark-circle" size={24} color="green" />
+            ) : (
               <Button title="Add Friend" onPress={() => handleAddFriend(item)} />
             )}
           </View>
@@ -156,20 +154,28 @@ const UsersScreen = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Add {selectedUser?.handle} as a friend</Text>
-            {/* Picker para seleccionar evento */}
-            <Picker
-              selectedValue={selectedEvent}
-              onValueChange={(itemValue) => setSelectedEvent(itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select Event" value={null} />
-              {events.map((event) => (
-                <Picker.Item key={event.id} label={event.name} value={event} />
-              ))}
-            </Picker>
-            <Button title="Confirm" onPress={handleSubmit} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
+            <ScrollView>
+              <Text style={styles.modalTitle}>Add {selectedUser?.handle} as a friend</Text>
+              <FlatList
+                data={events}
+                keyExtractor={(event) => event.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity 
+                    style={styles.eventItem} 
+                    onPress={() => setSelectedEvent(item)}
+                  >
+                    <Text style={styles.eventText}>{item.name}</Text>
+                    {selectedEvent?.id === item.id && (
+                      <Ionicons name="checkmark-circle" size={24} color="green" />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+              <View style={styles.buttonContainer}>
+                <Button title="Confirm" onPress={handleSubmit} />
+                <Button title="Cancel" onPress={() => setModalVisible(false)} />
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -199,6 +205,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#f8f8f8',
     borderRadius: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  userHandle: {
+    fontSize: 18,
+    color: '#333',
   },
   modalContainer: {
     flex: 1,
@@ -208,13 +221,29 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
+    maxHeight: '80%', // Asegura que el contenido no exceda la altura del modal
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
   },
-  picker: {
-    height: 50,
-    width: '100%',
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 12,
+  },
+  eventItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  eventText: {
+    fontSize: 18,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Distribuir los botones en fila
   },
 });
 

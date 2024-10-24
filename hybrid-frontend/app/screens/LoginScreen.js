@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store'; // Importa SecureStore
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const LoginScreen = ({ navigation }) => {
@@ -10,7 +10,7 @@ const LoginScreen = ({ navigation }) => {
 
   const saveToken = async (token) => {
     try {
-      await AsyncStorage.setItem('authToken', token);
+      await SecureStore.setItemAsync('authToken', token); // Usa SecureStore
     } catch (error) {
       console.error('Error al guardar el token:', error);
     }
@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
 
   const saveUserId = async (userId) => {
     try {
-      await AsyncStorage.setItem('userId', userId.toString());
+      await SecureStore.setItemAsync('userId', userId.toString()); // Usa SecureStore
     } catch (error) {
       console.error('Error al guardar el user id:', error);
     }
@@ -51,8 +51,8 @@ const LoginScreen = ({ navigation }) => {
   
       if (token && userId) {
         // Almacena el token y userId
-        saveToken(token);
-        saveUserId(userId);
+        await saveToken(token);
+        await saveUserId(userId);
   
         navigation.navigate('Home');
       } else {

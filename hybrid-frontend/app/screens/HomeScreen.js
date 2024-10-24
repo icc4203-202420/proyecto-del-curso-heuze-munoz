@@ -3,21 +3,46 @@ import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { Card, List } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { EXPO_PUBLIC_API_BASE_URL } from '@env';
+import * as SecureStore from 'expo-secure-store'; // Cambiado a SecureStore
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
   const handleLogout = async () => {
-    // Aquí puedes eliminar el token o hacer la lógica que necesites para logout
-    await AsyncStorage.removeItem('authToken');
-    Alert.alert('Logged out', 'You have been logged out.', [
-      { text: 'OK', onPress: () => navigation.navigate('Login') }
-    ]);
+    const token = await SecureStore.getItemAsync('authToken'); // Obtener el token de SecureStore
+  
+    if (token) {
+      try {
+        // Aquí puedes realizar la llamada de logout al backend si es necesario
+        await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/logout`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: token, // Usar el token como autorización
+          },
+        });
+  
+        // Eliminar el token de SecureStore
+        await SecureStore.deleteItemAsync('authToken');
+        Alert.alert('Logged out', 'You have been logged out.', [
+          { text: 'OK', onPress: () => navigation.navigate('Login') }
+        ]);
+      } catch (error) {
+        console.error("Error in logout:", error);
+        // Eliminar el token de SecureStore incluso si hay un error
+        await SecureStore.deleteItemAsync('authToken');
+        Alert.alert('Error', 'There was a problem logging out. Please try again.');
+        navigation.navigate('Login');
+      }
+    } else {
+      // Si no hay token, navegar a la pantalla de login
+      navigation.navigate('Login');
+    }
   };
+  
 
   const handleUsersClick = async () => {
-    const token = await AsyncStorage.getItem('authToken');
+    const token = await SecureStore.getItemAsync('authToken'); // Cambiado a SecureStore
     const isAuthenticated = !!token;
 
     if (!isAuthenticated) {
