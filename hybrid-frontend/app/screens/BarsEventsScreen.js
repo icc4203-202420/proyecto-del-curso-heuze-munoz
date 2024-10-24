@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, Alert, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, Alert, StyleSheet, TouchableOpacity, ActivityIndicator  } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import dayjs from 'dayjs';
@@ -15,6 +15,7 @@ const BarsEventsScreen = () => {
   const [attendees, setAttendees] = useState({});
   const [friends, setFriends] = useState([]);
   const [checkedInEvents, setCheckedInEvents] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const isUserLoggedIn = async () => {
     const token = await SecureStore.getItemAsync('authToken');
@@ -43,8 +44,9 @@ const BarsEventsScreen = () => {
         const barData = await barResponse.json();
         setBarName(barData.bar.name);
 
-        const friendsResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users/${userId}/friendships`, {
+        const friendsResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users/${userId}/friendships?user_id=${userId}`, {
           headers: { Authorization: token },
+          'Content-Type': 'application/json',
         });
         const friendsData = await friendsResponse.json();
         const friendIds = friendsData.map(friend => friend.id);
@@ -72,6 +74,9 @@ const BarsEventsScreen = () => {
         if (!await isUserLoggedIn()) {
           navigation.navigate('Login');
         }
+      }
+      finally {
+        setLoading(false); // Cambia el estado a false cuando se complete la carga
       }
     };
 
@@ -118,42 +123,47 @@ const BarsEventsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{barName} Events</Text>
+      {loading ? (
+      <ActivityIndicator size="large" color="#6A0DAD" />
+      ) : (
+        <FlatList
+          data={events}
+          keyExtractor={(event) => event.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.eventName}>{item.name}</Text>
+              <Text style={styles.eventDate}>{dayjs(item.date).format('MMMM D, YYYY [at] h:mm A')}</Text>
+              <Text style={styles.eventDescription}>{item.description}</Text>
 
-      <FlatList
-        data={events}
-        keyExtractor={(event) => event.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.eventName}>{item.name}</Text>
-            <Text>{dayjs(item.date).format('MMMM D, YYYY [at] h:mm A')}</Text>
-            <Text>{item.description}</Text>
+              {checkedInEvents[item.id] ? (
+                <Text style={styles.checkedIn}>Checked in!</Text>
+              ) : (
+                <TouchableOpacity style={styles.checkInButton} onPress={() => handleCheckIn(item.id)}>
+                  <Text style={styles.checkInButtonText}>Check-in</Text>
+                </TouchableOpacity>
+              )}
 
-            {checkedInEvents[item.id] ? (
-              <Text style={styles.checkedIn}>Checked in!</Text>
-            ) : (
-              <Button title="Check-in" onPress={() => handleCheckIn(item.id)} />
-            )}
-
-            <Text style={styles.attendeesTitle}>Attendees:</Text>
-            {attendees[item.id] && attendees[item.id].length > 0 ? (
-              attendees[item.id]
-                .sort((a, b) => {
-                  if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
-                  if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
-                  return 0;
-                })
-                .map(attendee => (
-                  <View key={attendee.user.id} style={styles.attendee}>
-                    <Text>{attendee.user.handle}</Text>
-                    {friends.includes(attendee.user.id) && <Text style={styles.friendChip}>Friend</Text>}
-                  </View>
-                ))
-            ) : (
-              <Text>No attendees yet.</Text>
-            )}
-          </View>
-        )}
-      />
+              <Text style={styles.attendeesTitle}>Attendees:</Text>
+              {attendees[item.id] && attendees[item.id].length > 0 ? (
+                attendees[item.id]
+                  .sort((a, b) => {
+                    if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
+                    if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
+                    return 0;
+                  })
+                  .map(attendee => (
+                    <View key={attendee.user.id} style={styles.attendee}>
+                      <Text>{attendee.user.handle}</Text>
+                      {friends.includes(attendee.user.id) && <Text style={styles.friendChip}>Friend</Text>}
+                    </View>
+                  ))
+              ) : (
+                <Text>No attendees yet.</Text>
+              )}
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -162,7 +172,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5', // Color de fondo claro
   },
   title: {
     fontSize: 24,
@@ -175,10 +185,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 12,
+    backgroundColor: '#fff',
+    elevation: 3, // Sombra
   },
   eventName: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333', // Color del nombre del evento
+  },
+  eventDate: {
+    color: '#666', // Color del texto de la fecha
+    marginBottom: 8,
+  },
+  eventDescription: {
+    marginBottom: 16,
   },
   checkedIn: {
     color: 'green',
@@ -188,6 +208,7 @@ const styles = StyleSheet.create({
   attendeesTitle: {
     fontWeight: 'bold',
     marginTop: 24,
+    color: '#333', // Color del título de asistentes
   },
   attendee: {
     flexDirection: 'row',
@@ -200,6 +221,18 @@ const styles = StyleSheet.create({
     padding: 4,
     borderRadius: 4,
     marginLeft: 8,
+  },
+  checkInButton: {
+    backgroundColor: '#6A0DAD', // Color de fondo del botón
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  checkInButtonText: {
+    color: '#fff', // Color del texto del botón
+    fontWeight: 'bold',
   },
 });
 

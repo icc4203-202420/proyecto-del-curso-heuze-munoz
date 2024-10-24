@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, Modal, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, Modal, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 import { Picker } from '@react-native-picker/picker';
@@ -13,6 +13,7 @@ const UsersScreen = ({ navigation }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const isUserLoggedIn = async () => {
     const authToken = await SecureStore.getItemAsync('authToken');
@@ -76,6 +77,8 @@ const UsersScreen = ({ navigation }) => {
         setEvents(eventsData.events);
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false); // Cambia el estado a false cuando se complete la carga
       }
     };
 
@@ -129,7 +132,9 @@ const UsersScreen = ({ navigation }) => {
         value={searchTerm}
         onChangeText={setSearchTerm}
       />
-
+      {loading ? (
+      <ActivityIndicator size="large" color="#6A0DAD" />
+      ) : (
       <FlatList
         data={filteredUsers}
         keyExtractor={(item) => item.id.toString()}
@@ -146,7 +151,7 @@ const UsersScreen = ({ navigation }) => {
           </View>
         )}
       />
-
+      )}
       {/* Modal para añadir amigo */}
       <Modal
         animationType="slide"
