@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Alert } from 'react-native';
-import * as SecureStore from 'expo-secure-store'; // Importa SecureStore
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const LoginScreen = ({ navigation }) => {
@@ -10,7 +10,7 @@ const LoginScreen = ({ navigation }) => {
 
   const saveToken = async (token) => {
     try {
-      await SecureStore.setItemAsync('authToken', token); // Usa SecureStore
+      await SecureStore.setItemAsync('authToken', token);
     } catch (error) {
       console.error('Error al guardar el token:', error);
     }
@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
 
   const saveUserId = async (userId) => {
     try {
-      await SecureStore.setItemAsync('userId', userId.toString()); // Usa SecureStore
+      await SecureStore.setItemAsync('userId', userId.toString());
     } catch (error) {
       console.error('Error al guardar el user id:', error);
     }
@@ -26,15 +26,14 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     setLoading(true);
-  
+
     try {
       const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: { email, password } }),
       });
-  
-      // Verifica si la respuesta es JSON antes de parsearla
+
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const errorText = await response.text();
@@ -43,17 +42,14 @@ const LoginScreen = ({ navigation }) => {
         setLoading(false);
         return;
       }
-  
+
       const data = await response.json();
-  
       const token = response.headers.get('authorization');
       const userId = data.status.data.user.id;
-  
+
       if (token && userId) {
-        // Almacena el token y userId
         await saveToken(token);
         await saveUserId(userId);
-  
         navigation.navigate('Home');
       } else {
         Alert.alert('Login failed', 'No token or user ID received.');
@@ -64,7 +60,7 @@ const LoginScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
@@ -84,15 +80,19 @@ const LoginScreen = ({ navigation }) => {
         secureTextEntry
         required
       />
-      <Button
-        title={loading ? 'Logging in...' : 'Login'}
+      <TouchableOpacity
+        style={styles.button}
         onPress={handleLogin}
         disabled={loading}
-      />
-      <Button
-        title="Don't have an account? Sign Up"
+      >
+        <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonSecondary}
         onPress={() => navigation.navigate('Register')}
-      />
+      >
+        <Text style={styles.buttonTextSecondary}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
       <Text style={styles.info}>
         Email: default@example.com{'\n'}PW: password
       </Text>
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 16,
   },
   input: {
@@ -118,6 +119,30 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
     borderRadius: 5,
+  },
+  button: {
+    width: '100%', // Asegurando que el botón ocupe todo el ancho
+    backgroundColor: '#6A0DAD',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10, // Espaciado entre botones
+  },
+  buttonSecondary: {
+    width: '100%',
+    backgroundColor: '#6c757d',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  buttonTextSecondary: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   info: {
     color: 'gray',

@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   addFriendButton: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#007bff',
+    backgroundColor: '#6A0DAD',
     alignItems: 'center',
     justifyContent: 'center',
     width: 100, // Tamaño uniforme
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     margin: 5,
-    backgroundColor: '#007bff',
+    backgroundColor: '#6A0DAD',
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',

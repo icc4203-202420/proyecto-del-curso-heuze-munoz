@@ -40,7 +40,6 @@ const App = () => {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ headerShown: false }} // Ocultar el encabezado solo en Home
         />
         <Stack.Screen
           name="Beers"
