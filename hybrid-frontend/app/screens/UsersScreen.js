@@ -139,7 +139,9 @@ const UsersScreen = ({ navigation }) => {
             {friends.some(friend => friend.id === item.id) ? (
               <Ionicons name="checkmark-circle" size={24} color="green" />
             ) : (
-              <Button title="Add Friend" onPress={() => handleAddFriend(item)} />
+              <TouchableOpacity style={styles.addFriendButton} onPress={() => handleAddFriend(item)}>
+                <Text style={styles.buttonText}>Add Friend</Text>
+              </TouchableOpacity>
             )}
           </View>
         )}
@@ -172,8 +174,12 @@ const UsersScreen = ({ navigation }) => {
                 )}
               />
               <View style={styles.buttonContainer}>
-                <Button title="Confirm" onPress={handleSubmit} />
-                <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                  <Text style={styles.buttonText}>Confirm</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
               </View>
             </ScrollView>
           </View>
@@ -187,27 +193,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 16,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderWidth: 1,
     marginBottom: 16,
     paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
   userCard: {
     padding: 16,
     marginBottom: 16,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 5,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   userHandle: {
     fontSize: 18,
@@ -221,7 +234,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    maxHeight: '80%', // Asegura que el contenido no exceda la altura del modal
+    maxHeight: '80%',
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
@@ -243,7 +256,27 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Distribuir los botones en fila
+    justifyContent: 'space-between',
+  },
+  addFriendButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#007bff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 100, // Tamaño uniforme
+  },
+  button: {
+    flex: 1,
+    margin: 5,
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
