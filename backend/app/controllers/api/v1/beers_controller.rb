@@ -81,8 +81,4 @@ class API::V1::BeersController < ApplicationController
       content_type: decoded_image[:content_type])
   end 
   
-  def verify_jwt_token
-    authenticate_user!
-    head :unauthorized unless current_user
-  end  
 end

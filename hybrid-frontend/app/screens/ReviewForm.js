@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const ReviewForm = React.memo(({ beerId, onReviewSubmitted }) => {
@@ -13,7 +13,7 @@ const ReviewForm = React.memo(({ beerId, onReviewSubmitted }) => {
 
   const handleSubmitReview = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await SecureStore.getItemAsync('authToken')
       if (!token) {
         Alert.alert('Not Authenticated', 'You need to log in to submit a review.');
         navigation.navigate('Login');

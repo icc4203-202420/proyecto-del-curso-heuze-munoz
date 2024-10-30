@@ -1,18 +1,24 @@
 class API::V1::EventPicturesController < ApplicationController
-  include Authenticable
-
-  before_action :verify_jwt_token
-  before_action :set_event
+  before_action :authenticate_user!, only: [:create]
+  before_action :set_event, only: [:index, :create]
+  before_action :set_event_picture, only: [:show]
 
   def index
-    @event_pictures = @event.event_pictures
+    @event_pictures = @event.event_pictures.includes(:tagged_friends, image_attachment: :blob)
 
     render json: @event_pictures.map { |pic|
       pic.as_json.merge(
-        image_url: url_for(pic.image), 
+        image_url: url_for(pic.image),
         tagged_friends: pic.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
       )
     }
+  end
+
+  def show
+    render json: @event_picture.as_json.merge(
+      image_url: url_for(@event_picture.image),
+      user: { id: @event_picture.user.id, handle: @event_picture.user.handle }
+    )
   end
 
   def create
@@ -20,17 +26,20 @@ class API::V1::EventPicturesController < ApplicationController
     @event_picture.user = current_user
 
     if @event_picture.save
-      # Guarda los amigos etiquetados
-      tagged_friends_params.each do |friend_id|
+      tagged_friend_ids = tagged_friends_params
+      tagged_friend_ids.each do |friend_id|
         TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id)
       end
 
-      # Renderiza la respuesta incluyendo los amigos etiquetados
+      # Send notifications to tagged friends
+      send_notifications_to_tagged_friends(tagged_friend_ids)
+
       render json: @event_picture.as_json.merge(
         image_url: url_for(@event_picture.image),
         tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
       ), status: :created
     else
+      Rails.logger.error("Failed to save event picture: #{@event_picture.errors.full_messages.join(', ')}")
       render json: { errors: @event_picture.errors.full_messages }, status: :unprocessable_entity
     end
   end
@@ -41,19 +50,38 @@ class API::V1::EventPicturesController < ApplicationController
     @event = Event.find(params[:event_id])
   end
 
-  def event_picture_params
-    params.require(:event_picture).permit(:description, :image)
+  def set_event_picture
+    @event_picture = EventPicture.find(params[:id])
   end
 
-  # Método para obtener los amigos etiquetados del parámetro
+  def event_picture_params
+    params.permit(:description, :image)
+  end
+
   def tagged_friends_params
-    # Intenta parsear tagged_friends como JSON, o devuelve un array vacío si hay un error
     return [] unless params[:tagged_friends]
 
     begin
-      JSON.parse(params[:tagged_friends]).map { |friend| friend['id'] } # Extrae solo los IDs de los amigos
+      JSON.parse(params[:tagged_friends]).map { |friend| friend['id'] }
     rescue JSON::ParserError
-      [] # Devuelve un array vacío si el JSON es inválido
+      []
+    end
+  end
+
+  def send_notifications_to_tagged_friends(friend_ids)
+    friend_ids.each do |friend_id|
+      user = User.find(friend_id)
+      next unless user.device_token.present?
+
+      message = {
+        to: user.device_token,
+        sound: 'default',
+        title: "#{current_user.handle} tagged you in a photo!",
+        body: 'Tap to view the photo and add as a friend.',
+        data: { event_picture_id: @event_picture.id }
+      }
+
+      NotificationService.send_push_notification(message)
     end
   end
 end
