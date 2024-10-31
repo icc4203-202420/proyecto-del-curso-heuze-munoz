@@ -4,6 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import dayjs from 'dayjs';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
+import EventPhotoUpload from '../components/EventPhotoUpload';
+import PhotoGallery from '../components/PhotoGallery'
 
 const BarsEventsScreen = () => {
   const navigation = useNavigation();
@@ -160,6 +162,8 @@ const BarsEventsScreen = () => {
               ) : (
                 <Text>No attendees yet.</Text>
               )}
+              <EventPhotoUpload eventId={item.id} attendees={attendees[item.id] || []} />
+              <PhotoGallery eventId={item.id}/>
             </View>
           )}
         />

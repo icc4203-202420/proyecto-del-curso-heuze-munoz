@@ -4,7 +4,7 @@ class API::V1::EventsController < ApplicationController
 
   respond_to :json
   before_action :set_event, only: [:show, :update, :destroy]
-  before_action :verify_jwt_token
+  before_action :verify_jwt_token, only: [:show, :update, :destroy]
 
   def index
     if params[:bar_id]
@@ -73,4 +73,5 @@ class API::V1::EventsController < ApplicationController
     decoded_image = decode_image(event_params[:flyer_base64])
     @event.flyer.attach(io: decoded_image[:io], filename: decoded_image[:filename], content_type: decoded_image[:content_type])
   end
+
 end

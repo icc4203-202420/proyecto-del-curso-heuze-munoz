@@ -11,11 +11,11 @@ import {
   Platform,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 import jwt_decode from 'jwt-decode';
 import { Rating } from 'react-native-ratings';
-import ReviewForm from './ReviewForm'; // Ensure the path is correct
+import ReviewForm from './ReviewForm';
 
 const BeerDetail = () => {
   const [beer, setBeer] = useState(null);
@@ -32,7 +32,7 @@ const BeerDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await AsyncStorage.getItem('authToken');
+        const token = await SecureStore.getItemAsync('authToken')
         if (!token) {
           Alert.alert('Not Authenticated', 'You need to log in to view this page.');
           navigation.navigate('Login');

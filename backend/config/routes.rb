@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
+      post 'users/update_device_token', to: 'users#update_device_token'
+      post 'users/:id/send_notification', to: 'users#send_notification'
       resources :countries, only: [:index]
       resources :breweries, only: [:show]
       resources :bars do
@@ -29,7 +31,7 @@ Rails.application.routes.draw do
         end
       end
       resources :events, only: [:index, :show, :create, :update, :destroy] do 
-        resources :event_pictures, only: [:create, :index]
+        resources :event_pictures, only: [:show, :create, :index]
         resources :attendances, only: [:index, :create]
       end
       resources :beers do

@@ -1,6 +1,7 @@
 class API::V1::BreweriesController < ApplicationController
-    respond_to :json
     include Authenticable
+    respond_to :json
+    #before_action :verify_jwt_token
   
     def show
       @beer = Beer.includes(brand: :brewery).find(params[:id])

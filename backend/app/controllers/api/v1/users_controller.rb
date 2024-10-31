@@ -1,6 +1,5 @@
 class API::V1::UsersController < ApplicationController
   respond_to :json 
-  before_action :authenticate_user!
   before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
 
   def index
@@ -61,18 +60,51 @@ class API::V1::UsersController < ApplicationController
     end
   end
 
+  def update_device_token
+    if current_user.update(device_token: params[:device_token])
+      render json: { success: true }, status: :ok
+    else
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def send_notification
+    recipient = User.find_by(id: params[:id])
+
+    if recipient.nil?
+      render json: { error: 'User not found' }, status: :not_found
+      return
+    end
+
+    if recipient.device_token.blank?
+      render json: { error: 'Recipient has no device token' }, status: :unprocessable_entity
+      return
+    end
+
+    message = {
+      to: recipient.device_token,
+      sound: 'default',
+      title: "#{current_user.handle} sent you a message",
+      body: params[:message] || 'You have a new notification!',
+      data: { sender_id: current_user.id }
+    }
+
+    NotificationService.send_push_notification(message)
+
+    render json: { success: true }, status: :ok
+  end
+  
   private
 
   def set_user
-    if params[:user_id].present?
-      @user = User.find(params[:user_id])
-    else
-      render json: { error: 'User ID is missing' }, status: :bad_request
+    Rails.logger.info("Params received: #{params.inspect}")
+  
+    @user = User.find_by(id: params[:id]) # Use params[:id] since it's a member route
+    if @user.nil?
+      render json: { error: 'User not found' }, status: :not_found
     end
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'User not found' }, status: :not_found
   end
-
+  
   def user_params
     params.fetch(:user, {}).
         permit(:id, :first_name, :last_name, :email, :age,
