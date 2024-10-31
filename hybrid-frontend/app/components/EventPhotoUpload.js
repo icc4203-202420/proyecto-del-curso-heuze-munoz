@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Alert, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as SecureStore from 'expo-secure-store';
@@ -10,43 +10,44 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
   const [description, setDescription] = useState('');
   const [taggedFriends, setTaggedFriends] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const userId = await SecureStore.getItemAsync('userId');
+      setCurrentUserId(userId);
+    };
+    fetchUserId();
+  }, []);
+  
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert("Permission to access media library is required!");
       return;
     }
-  
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-  
     if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
-      const selectedAsset = pickerResult.assets[0];
-      setImage(selectedAsset.uri);
+      setImage(pickerResult.assets[0].uri);
     }
   };
-  
-  
 
   const handleUploadPhoto = async () => {
     if (!image) {
       Alert.alert('Please select an image.');
       return;
     }
-  
     setIsUploading(true);
     const token = await SecureStore.getItemAsync('authToken');
     const userId = await SecureStore.getItemAsync('userId');
-  
     if (!token || !userId) {
       Alert.alert('User session not found. Please log in again.');
       return;
     }
-  
     try {
       const formData = new FormData();
       formData.append('description', description);
@@ -56,20 +57,18 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
         type: 'image/jpeg',
       });
       formData.append('tagged_friends', JSON.stringify(taggedFriends.map(id => ({ id }))));
-  
+
       const response = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/events/${eventId}/event_pictures`, {
         method: 'POST',
         headers: {
-          'Authorization': token,
+          Authorization: `${token}`,
           'Content-Type': 'multipart/form-data',
         },
         body: formData,
       });
-  
-      if (!response.ok) {
-        throw new Error('Failed to upload photo');
-      }
-  
+
+      if (!response.ok) throw new Error('Failed to upload photo');
+
       Alert.alert('Success', 'Photo uploaded successfully!');
       setImage(null);
       setDescription('');
@@ -81,29 +80,28 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
       setIsUploading(false);
     }
   };
-  
-  const availableAttendees = attendees.filter(
-    attendee => !taggedFriends.includes(attendee.user.id)
-  );
+
+  const availableAttendees = currentUserId
+  ? attendees.filter(attendee => {
+      return attendee.user.id !== parseInt(currentUserId, 10) && !taggedFriends.includes(attendee.user.id);
+    })
+  : [];
 
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity style={styles.pickImageButton} onPress={handlePickImage}>
         <Text style={styles.buttonText}>Pick an Image</Text>
       </TouchableOpacity>
-
       {image && <Text style={styles.imageSelectedText}>Image selected!</Text>}
-
       <TextInput
         style={styles.descriptionInput}
         placeholder="Description"
         value={description}
         onChangeText={setDescription}
       />
-
       <View style={styles.tagFriendsContainer}>
-        <Text style={styles.tagFriendsTitle}>Tag Friends:</Text>
-        {taggedFriends.map((friendId) => {
+        <Text style={styles.tagFriendsTitle}>Tag Users:</Text>
+        {taggedFriends.map(friendId => {
           const friend = attendees.find(attendee => attendee.user.id === friendId);
           return (
             <Text key={friendId} style={styles.friendTagText}>
@@ -111,24 +109,19 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
             </Text>
           );
         })}
-
         {availableAttendees.length > 0 && (
           <Picker
             selectedValue={null}
             style={styles.picker}
-            onValueChange={(itemValue) => {
+            onValueChange={itemValue => {
               if (itemValue) {
                 setTaggedFriends([...taggedFriends, itemValue]);
               }
             }}
           >
-            <Picker.Item key="default" label="Select friend to tag" value={null} />
+            <Picker.Item key="default" label="Select user to tag" value={null} />
             {availableAttendees.map(attendee => (
-              <Picker.Item
-                key={attendee.user.id}
-                label={attendee.user.handle}
-                value={attendee.user.id}
-              />
+              <Picker.Item key={attendee.user.id} label={attendee.user.handle} value={attendee.user.id} />
             ))}
           </Picker>
         )}

@@ -93,7 +93,6 @@ const App = () => {
         />
         <Stack.Screen name="Users" component={UsersScreen} />
         <Stack.Screen name="BeerDetail" component={BeerDetailScreen} />
-        {/* Add EventPhotoView screen to handle photo viewing */}
         <Stack.Screen name="EventPhoto" component={EventPhotoScreen} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -145,8 +144,6 @@ async function registerForPushNotificationsAsync() {
         console.error('Error sending device token to backend:', error);
       }
     }
-  } else {
-    Alert.alert('Must use physical device for Push Notifications');
   }
 
   if (Platform.OS === 'android') {

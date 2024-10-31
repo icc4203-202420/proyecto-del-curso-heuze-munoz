@@ -17,9 +17,11 @@ class API::V1::EventPicturesController < ApplicationController
   def show
     render json: @event_picture.as_json.merge(
       image_url: url_for(@event_picture.image),
-      user: { id: @event_picture.user.id, handle: @event_picture.user.handle }
+      user: { id: @event_picture.user.id, handle: @event_picture.user.handle },
+      tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
     )
   end
+  
 
   def create
     @event_picture = @event.event_pictures.new(event_picture_params)

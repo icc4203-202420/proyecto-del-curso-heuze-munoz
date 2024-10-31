@@ -97,15 +97,14 @@ class API::V1::UsersController < ApplicationController
   private
 
   def set_user
-    if params[:user_id].present?
-      @user = User.find(params[:user_id])
-    else
-      render json: { error: 'User ID is missing' }, status: :bad_request
+    Rails.logger.info("Params received: #{params.inspect}")
+  
+    @user = User.find_by(id: params[:id]) # Use params[:id] since it's a member route
+    if @user.nil?
+      render json: { error: 'User not found' }, status: :not_found
     end
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'User not found' }, status: :not_found
   end
-
+  
   def user_params
     params.fetch(:user, {}).
         permit(:id, :first_name, :last_name, :email, :age,

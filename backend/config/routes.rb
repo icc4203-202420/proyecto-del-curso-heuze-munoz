@@ -31,7 +31,7 @@ Rails.application.routes.draw do
         end
       end
       resources :events, only: [:index, :show, :create, :update, :destroy] do 
-        resources :event_pictures, only: [:create, :index]
+        resources :event_pictures, only: [:show, :create, :index]
         resources :attendances, only: [:index, :create]
       end
       resources :beers do
