@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Alert, TouchableOpacity, ScrollView, StyleSheet, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as SecureStore from 'expo-secure-store';
-import { Picker } from '@react-native-picker/picker';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 const EventPhotoUpload = ({ eventId, attendees }) => {
@@ -11,6 +10,8 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
   const [taggedFriends, setTaggedFriends] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredAttendees, setFilteredAttendees] = useState([]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -19,7 +20,24 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
     };
     fetchUserId();
   }, []);
-  
+
+  useEffect(() => {
+    const filterAttendees = () => {
+      if (searchQuery.trim() === '') {
+        setFilteredAttendees([]);
+      } else {
+        setFilteredAttendees(
+          attendees.filter(attendee => 
+            attendee.user.handle.toLowerCase().includes(searchQuery.toLowerCase()) &&
+            attendee.user.id !== parseInt(currentUserId, 10) &&
+            !taggedFriends.includes(attendee.user.id)
+          )
+        );
+      }
+    };
+    filterAttendees();
+  }, [searchQuery, attendees, taggedFriends, currentUserId]);
+
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -73,6 +91,7 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
       setImage(null);
       setDescription('');
       setTaggedFriends([]);
+      setSearchQuery('');
     } catch (error) {
       console.error('Error uploading photo:', error);
       Alert.alert('Error', 'There was an error uploading the photo.');
@@ -81,11 +100,14 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
     }
   };
 
-  const availableAttendees = currentUserId
-  ? attendees.filter(attendee => {
-      return attendee.user.id !== parseInt(currentUserId, 10) && !taggedFriends.includes(attendee.user.id);
-    })
-  : [];
+  const addTaggedFriend = (userId) => {
+    setTaggedFriends([...taggedFriends, userId]);
+    setSearchQuery('');
+  };
+
+  const removeTaggedFriend = (userId) => {
+    setTaggedFriends(taggedFriends.filter(id => id !== userId));
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -101,29 +123,42 @@ const EventPhotoUpload = ({ eventId, attendees }) => {
       />
       <View style={styles.tagFriendsContainer}>
         <Text style={styles.tagFriendsTitle}>Tag Users:</Text>
-        {taggedFriends.map(friendId => {
-          const friend = attendees.find(attendee => attendee.user.id === friendId);
-          return (
-            <Text key={friendId} style={styles.friendTagText}>
-              {friend ? friend.user.handle : 'Unknown'}
-            </Text>
-          );
-        })}
-        {availableAttendees.length > 0 && (
-          <Picker
-            selectedValue={null}
-            style={styles.picker}
-            onValueChange={itemValue => {
-              if (itemValue) {
-                setTaggedFriends([...taggedFriends, itemValue]);
-              }
-            }}
-          >
-            <Picker.Item key="default" label="Select user to tag" value={null} />
-            {availableAttendees.map(attendee => (
-              <Picker.Item key={attendee.user.id} label={attendee.user.handle} value={attendee.user.id} />
-            ))}
-          </Picker>
+        <FlatList
+          data={taggedFriends}
+          keyExtractor={(item) => item.toString()}
+          renderItem={({ item }) => {
+            const friend = attendees.find(attendee => attendee.user.id === item);
+            return (
+              <View style={styles.taggedFriendContainer}>
+                <Text style={styles.friendTagText}>
+                  {friend ? friend.user.handle : 'Unknown'}
+                </Text>
+                <TouchableOpacity onPress={() => removeTaggedFriend(item)}>
+                  <Text style={styles.removeButton}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search users to tag"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {filteredAttendees.length > 0 && (
+          <FlatList
+            data={filteredAttendees}
+            keyExtractor={(item) => item.user.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.suggestedUser}
+                onPress={() => addTaggedFriend(item.user.id)}
+              >
+                <Text style={styles.suggestedUserText}>{item.user.handle}</Text>
+              </TouchableOpacity>
+            )}
+          />
         )}
       </View>
 
@@ -177,14 +212,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
   },
+  taggedFriendContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
   friendTagText: {
     color: '#333',
-    marginBottom: 4,
   },
-  picker: {
+  removeButton: {
+    color: 'red',
+  },
+  searchInput: {
     borderWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 16,
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  suggestedUser: {
+    padding: 8,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  suggestedUserText: {
+    color: '#333',
   },
   uploadButton: {
     backgroundColor: '#6A0DAD',
