@@ -134,7 +134,7 @@ const BarsEventsScreen = () => {
           keyExtractor={(event) => event.id.toString()}
           renderItem={({ item }) => {
             const isPastEvent = !item.end_date || dayjs(item.end_date).isBefore(dayjs());
-            //const hasVideo = item.video_generated && item.video_url;
+            const hasVideo = item.video_generated && item.video_url;
             return (
               <View style={styles.card}>
                 <Text style={styles.eventName}>{item.name}</Text>
@@ -167,7 +167,7 @@ const BarsEventsScreen = () => {
                   <Text>No attendees yet.</Text>
                 )}
                 
-                {isPastEvent  && (
+                {isPastEvent && hasVideo && (
                   <TouchableOpacity
                     style={styles.summaryButton}
                     onPress={() => handleViewSummary(`${EXPO_PUBLIC_API_BASE_URL}${item.video_url}`)}
