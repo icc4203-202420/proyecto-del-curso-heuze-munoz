@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, Alert, StyleSheet, TouchableOpacity, ActivityIndicator  } from 'react-native';
+import { View, Text, Button, FlatList, Alert, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import dayjs from 'dayjs';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 import EventPhotoUpload from '../components/EventPhotoUpload';
-import PhotoGallery from '../components/PhotoGallery'
+import PhotoGallery from '../components/PhotoGallery';
 
 const BarsEventsScreen = () => {
   const navigation = useNavigation();
@@ -41,7 +41,6 @@ const BarsEventsScreen = () => {
         });
         const eventsData = await eventsResponse.json();
         setEvents(eventsData.events);
-
         const barResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/bars/${barId}`);
         const barData = await barResponse.json();
         setBarName(barData.bar.name);
@@ -61,7 +60,6 @@ const BarsEventsScreen = () => {
         }
         setAttendees(attendeesData);
 
-        // Verificar si el usuario ya hizo check-in en los eventos
         const checkedInResponse = await fetch(`${EXPO_PUBLIC_API_BASE_URL}/api/v1/users/${userId}/attendances`, {
           headers: { Authorization: token },
         });
@@ -76,9 +74,8 @@ const BarsEventsScreen = () => {
         if (!await isUserLoggedIn()) {
           navigation.navigate('Login');
         }
-      }
-      finally {
-        setLoading(false); // Cambia el estado a false cuando se complete la carga
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -122,50 +119,68 @@ const BarsEventsScreen = () => {
     }
   };
 
+  const handleViewSummary = (videoUrl) => {
+    navigation.navigate('EventSummary', { videoUrl });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{barName} Events</Text>
       {loading ? (
-      <ActivityIndicator size="large" color="#6A0DAD" />
+        <ActivityIndicator size="large" color="#6A0DAD" />
       ) : (
         <FlatList
           data={events}
           keyExtractor={(event) => event.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.eventName}>{item.name}</Text>
-              <Text style={styles.eventDate}>{dayjs(item.date).format('MMMM D, YYYY [at] h:mm A')}</Text>
-              <Text style={styles.eventDescription}>{item.description}</Text>
+          renderItem={({ item }) => {
+            const isPastEvent = !item.end_date || dayjs(item.end_date).isBefore(dayjs());
+            //const hasVideo = item.video_generated && item.video_url;
+            return (
+              <View style={styles.card}>
+                <Text style={styles.eventName}>{item.name}</Text>
+                <Text style={styles.eventDate}>{dayjs(item.start_date).format('MMMM D, YYYY [at] h:mm A')}</Text>
+                <Text style={styles.eventDescription}>{item.description}</Text>
 
-              {checkedInEvents[item.id] ? (
-                <Text style={styles.checkedIn}>Checked in!</Text>
-              ) : (
-                <TouchableOpacity style={styles.checkInButton} onPress={() => handleCheckIn(item.id)}>
-                  <Text style={styles.checkInButtonText}>Check-in</Text>
-                </TouchableOpacity>
-              )}
+                {checkedInEvents[item.id] ? (
+                  <Text style={styles.checkedIn}>Checked in!</Text>
+                ) : (
+                  <TouchableOpacity style={styles.checkInButton} onPress={() => handleCheckIn(item.id)}>
+                    <Text style={styles.checkInButtonText}>Check-in</Text>
+                  </TouchableOpacity>
+                )}
 
-              <Text style={styles.attendeesTitle}>Attendees:</Text>
-              {attendees[item.id] && attendees[item.id].length > 0 ? (
-                attendees[item.id]
-                  .sort((a, b) => {
-                    if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
-                    if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
-                    return 0;
-                  })
-                  .map(attendee => (
-                    <View key={attendee.user.id} style={styles.attendee}>
-                      <Text>{attendee.user.handle}</Text>
-                      {friends.includes(attendee.user.id) && <Text style={styles.friendChip}>Friend</Text>}
-                    </View>
-                  ))
-              ) : (
-                <Text>No attendees yet.</Text>
-              )}
-              <EventPhotoUpload eventId={item.id} attendees={attendees[item.id] || []} />
-              <PhotoGallery eventId={item.id}/>
-            </View>
-          )}
+                <Text style={styles.attendeesTitle}>Attendees:</Text>
+                {attendees[item.id] && attendees[item.id].length > 0 ? (
+                  attendees[item.id]
+                    .sort((a, b) => {
+                      if (friends.includes(a.user.id) && !friends.includes(b.user.id)) return -1;
+                      if (!friends.includes(a.user.id) && friends.includes(b.user.id)) return 1;
+                      return 0;
+                    })
+                    .map(attendee => (
+                      <View key={attendee.user.id} style={styles.attendee}>
+                        <Text>{attendee.user.handle}</Text>
+                        {friends.includes(attendee.user.id) && <Text style={styles.friendChip}>Friend</Text>}
+                      </View>
+                    ))
+                ) : (
+                  <Text>No attendees yet.</Text>
+                )}
+                
+                {isPastEvent  && (
+                  <TouchableOpacity
+                    style={styles.summaryButton}
+                    onPress={() => handleViewSummary(`${EXPO_PUBLIC_API_BASE_URL}${item.video_url}`)}
+                  >
+                    <Text style={styles.summaryButtonText}>View Summary</Text>
+                  </TouchableOpacity>
+                )}
+
+                <EventPhotoUpload eventId={item.id} attendees={attendees[item.id] || []} />
+                <PhotoGallery eventId={item.id} />
+              </View>
+            );
+          }}
         />
       )}
     </View>
@@ -176,7 +191,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     flex: 1,
-    backgroundColor: '#f5f5f5', // Color de fondo claro
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
@@ -190,15 +205,15 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 12,
     backgroundColor: '#fff',
-    elevation: 3, // Sombra
+    elevation: 3,
   },
   eventName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333', // Color del nombre del evento
+    color: '#333',
   },
   eventDate: {
-    color: '#666', // Color del texto de la fecha
+    color: '#666',
     marginBottom: 8,
   },
   eventDescription: {
@@ -212,7 +227,7 @@ const styles = StyleSheet.create({
   attendeesTitle: {
     fontWeight: 'bold',
     marginTop: 24,
-    color: '#333', // Color del título de asistentes
+    color: '#333',
   },
   attendee: {
     flexDirection: 'row',
@@ -227,7 +242,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   checkInButton: {
-    backgroundColor: '#6A0DAD', // Color de fondo del botón
+    backgroundColor: '#6A0DAD',
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -235,7 +250,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkInButtonText: {
-    color: '#fff', // Color del texto del botón
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  summaryButton: {
+    backgroundColor: '#000',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  summaryButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
   },
 });

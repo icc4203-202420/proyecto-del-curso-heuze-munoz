@@ -104,7 +104,6 @@ const EventPhotoView = () => {
   if (!eventPicture) {
     return <Text>Photo not found.</Text>;
   }
-  console.log(friends)
   return (
     <View style={styles.container}>
       <Image source={{ uri: eventPicture.image_url }} style={styles.image} />

@@ -11,10 +11,12 @@ import BarsScreen from './app/screens/BarsScreen';
 import BarsEventsScreen from './app/screens/BarsEventsScreen';
 import UsersScreen from './app/screens/UsersScreen';
 import EventPhotoScreen from './app/screens/EventPhotoScreen';
+import EventSummaryScreen from './app/screens/EventSummaryScreen';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
+import { navigationRef, navigate } from './app/utility/RootNavigation';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,10 +48,16 @@ const App = () => {
     // Handle notifications when the user interacts with them (e.g., taps on them)
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const data = response.notification.request.content.data;
-      if (data.event_picture_id) {
-        // Navigate to the EventPhotoView screen to display the photo
-        // Make sure to add EventPhotoView to your navigation stack
-        navigationRef.current?.navigate('EventPhotoView', { eventPictureId: data.event_picture_id });
+      if (data.event_picture_id && data.event_id) {
+        // You can extract the uploader's information
+        const uploader = data.uploader; // { id: uploaderId, handle: uploaderHandle }
+    
+        // Navigate to EventPhotoView and pass uploader's info if needed
+        navigate('EventPhotoView', {
+          eventId: data.event_id,
+          eventPictureId: data.event_picture_id,
+          uploader // Pass the uploader data
+        });
       }
     });
 
@@ -59,9 +67,6 @@ const App = () => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-
-  // Reference for navigation
-  const navigationRef = useRef();
 
   if (loading) {
     return null; // Or a loading component
@@ -94,6 +99,8 @@ const App = () => {
         <Stack.Screen name="Users" component={UsersScreen} />
         <Stack.Screen name="BeerDetail" component={BeerDetailScreen} />
         <Stack.Screen name="EventPhoto" component={EventPhotoScreen} />
+        <Stack.Screen name="EventPhotoView" component={EventPhotoScreen} />
+        <Stack.Screen name="EventSummary" component={EventSummaryScreen} options={{ title: 'Event Summary' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -105,30 +112,23 @@ export default App;
 async function registerForPushNotificationsAsync() {
   let token;
   if (Constants.isDevice) {
-    // Get existing permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-
-    // If permissions are not granted, request them
     if (existingStatus !== 'granted') {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
 
-    // If permissions are still not granted, alert the user
     if (finalStatus !== 'granted') {
       Alert.alert('Failed to get push token for push notifications!');
       return;
     }
 
-    // Get the push token
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log('Expo push token:', token);
 
-    // Save the device token to SecureStore
     await SecureStore.setItemAsync('deviceToken', token);
 
-    // Send the device token to your backend
     const authToken = await SecureStore.getItemAsync('authToken');
     if (authToken) {
       try {

@@ -1,9 +1,7 @@
 class API::V1::AttendancesController < ApplicationController
-  include Authenticable
 
   before_action :set_event, only: [:index, :create] # Añadir el before_action para index
-  before_action :verify_jwt_token, only: [:create]
-
+  before_action :authenticate_user!, only: [:create]
   # Método para obtener todas las asistencias (check-ins) de un evento
   def index
     @attendances = @event.attendances.includes(:user)

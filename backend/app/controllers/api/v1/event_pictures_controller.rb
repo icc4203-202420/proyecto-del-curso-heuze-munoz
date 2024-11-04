@@ -26,16 +26,16 @@ class API::V1::EventPicturesController < ApplicationController
   def create
     @event_picture = @event.event_pictures.new(event_picture_params)
     @event_picture.user = current_user
-
+  
     if @event_picture.save
       tagged_friend_ids = tagged_friends_params
       tagged_friend_ids.each do |friend_id|
         TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id)
       end
-
+  
       # Send notifications to tagged friends
-      send_notifications_to_tagged_friends(tagged_friend_ids)
-
+      send_notifications_to_tagged_friends(tagged_friend_ids, @event.id, @event_picture.id)
+  
       render json: @event_picture.as_json.merge(
         image_url: url_for(@event_picture.image),
         tagged_friends: @event_picture.tagged_friends.map { |friend| { id: friend.user_id, handle: friend.user.handle } }
@@ -70,19 +70,26 @@ class API::V1::EventPicturesController < ApplicationController
     end
   end
 
-  def send_notifications_to_tagged_friends(friend_ids)
+  def send_notifications_to_tagged_friends(friend_ids, event_id, event_picture_id)
     friend_ids.each do |friend_id|
       user = User.find(friend_id)
       next unless user.device_token.present?
-
+  
       message = {
         to: user.device_token,
         sound: 'default',
         title: "#{current_user.handle} tagged you in a photo!",
-        body: 'Tap to view the photo and add as a friend.',
-        data: { event_picture_id: @event_picture.id }
+        body: "#{current_user.handle} has uploaded a new photo and tagged you.",
+        data: {
+          event_id: event_id,
+          event_picture_id: event_picture_id,
+          uploader: {
+            id: current_user.id,
+            handle: current_user.handle
+          }
+        }
       }
-
+  
       NotificationService.send_push_notification(message)
     end
   end

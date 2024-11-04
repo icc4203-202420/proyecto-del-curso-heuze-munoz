@@ -42,7 +42,22 @@ if Rails.env.development?
 
   # Crear eventos asociados a los bares
   events = bars.each_with_index.map do |bar, index|
-    FactoryBot.create(:event, bar: bar, name: "Event #{index + 1}", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac lacus lorem.")
+    # Set dates: past events for even indices, future events for odd indices
+    if index.even?
+      start_date = DateTime.now - rand(10..30).days  # Past start date
+      end_date = start_date + rand(1..5).hours       # Past end date
+    else
+      start_date = DateTime.now + rand(1..10).days   # Future start date
+      end_date = start_date + rand(1..5).hours       # Future end date
+    end
+  
+    FactoryBot.create(:event, 
+      bar: bar,
+      name: "Event #{index + 1}",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac lacus lorem.",
+      start_date: start_date,
+      end_date: end_date
+    )
   end
 
   # Crear relaciones de amistad entre usuarios
@@ -72,5 +87,6 @@ if Rails.env.development?
   friends.each do |friend|
     FactoryBot.create(:friendship, user: default_user, friend: friend, bar: bars.sample)
   end
-
+  
+  
 end

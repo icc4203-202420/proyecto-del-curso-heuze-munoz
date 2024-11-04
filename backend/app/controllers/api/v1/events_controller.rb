@@ -16,14 +16,8 @@ class API::V1::EventsController < ApplicationController
   end
 
   def show
-    if @event.flyer.attached?
-      render json: @event.as_json.merge({ 
-        flyer_url: url_for(@event.flyer), 
-        thumbnail_url: url_for(@event.thumbnail) }),
-        status: :ok
-    else
-      render json: { event: @event.as_json }, status: :ok
-    end
+    event = Event.find(params[:id])
+    render json: event.as_json(only: [:id, :name, :description, :date, :end_date, :video_generated], methods: [:video_url])
   end
 
   def create
