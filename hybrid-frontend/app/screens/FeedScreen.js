@@ -56,9 +56,9 @@ const FeedScreen = () => {
           )}
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('EventPhotoView', { eventPictureId: item.event_picture.id })}
+            onPress={() => navigation.navigate('BarsEvents', { barId: item.event_picture.event.bar.id })}
           >
-            <Text style={styles.buttonText}>View Photo</Text>
+            <Text style={styles.buttonText}>View Event</Text>
           </TouchableOpacity>
         </View>
       );
@@ -70,26 +70,6 @@ const FeedScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.status}>Connection Status: {isConnected ? 'Connected' : 'Disconnected'}</Text>
-      <View style={styles.filterContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Filter Type (friend, beer)"
-          value={filterType}
-          onChangeText={setFilterType}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Filter Value"
-          value={filterValue}
-          onChangeText={setFilterValue}
-        />
-        <TouchableOpacity style={styles.button} onPress={applyFilter}>
-          <Text style={styles.buttonText}>Apply Filter</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={clearFilter}>
-          <Text style={styles.buttonText}>Clear Filter</Text>
-        </TouchableOpacity>
-      </View>
       <FlatList
         data={feed}
         keyExtractor={(item, index) => {
