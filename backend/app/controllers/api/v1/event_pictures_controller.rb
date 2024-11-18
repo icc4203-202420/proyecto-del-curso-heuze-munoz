@@ -32,9 +32,9 @@ class API::V1::EventPicturesController < ApplicationController
       tagged_friend_ids.each do |friend_id|
         TaggedFriend.create(event_picture_id: @event_picture.id, user_id: friend_id)
       end
-  
-      # Send notifications to tagged friends
       send_notifications_to_tagged_friends(tagged_friend_ids, @event.id, @event_picture.id)
+  
+      broadcast_to_friends(@event_picture)
   
       render json: @event_picture.as_json.merge(
         image_url: url_for(@event_picture.image),
@@ -91,6 +91,30 @@ class API::V1::EventPicturesController < ApplicationController
       }
   
       NotificationService.send_push_notification(message)
+    end
+  end
+  def broadcast_to_friends(event_picture)
+    current_user.friends.each do |friend|
+      ActionCable.server.broadcast(
+        "feed_#{friend.id}", # Personalized channel for each friend
+        {
+          type: 'event_picture',
+          event_picture: {
+            id: event_picture.id,
+            description: event_picture.description,
+            image_url: url_for(event_picture.image),
+            created_at: event_picture.created_at,
+            event: {
+              id: event_picture.event.id,
+              name: event_picture.event.name
+            }
+          },
+          user: {
+            id: current_user.id,
+            handle: current_user.handle
+          }
+        }
+      )
     end
   end
 end

@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './app/screens/LoginScreen';
 import RegisterScreen from './app/screens/RegisterScreen';
 import HomeScreen from './app/screens/HomeScreen';
+import FeedScreen from './app/screens/FeedScreen';
 import BeersScreen from './app/screens/BeersScreen';
 import BeerDetailScreen from './app/screens/BeerDetailScreen';
 import BarsScreen from './app/screens/BarsScreen';
@@ -12,6 +13,7 @@ import BarsEventsScreen from './app/screens/BarsEventsScreen';
 import UsersScreen from './app/screens/UsersScreen';
 import EventPhotoScreen from './app/screens/EventPhotoScreen';
 import EventSummaryScreen from './app/screens/EventSummaryScreen';
+import { WebSocketProvider } from './app/utility/WebSocketProvider';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
@@ -73,36 +75,39 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'Login'}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-        />
-        <Stack.Screen
-          name="Beers"
-          component={BeersScreen}
-          options={{ title: 'Beers List' }}
-        />
-        <Stack.Screen
-          name="BarsEvents"
-          component={BarsEventsScreen}
-          options={{ title: 'Bar Events List' }}
-        />
-        <Stack.Screen
-          name="Bars"
-          component={BarsScreen}
-          options={{ title: 'Bars List' }}
-        />
-        <Stack.Screen name="Users" component={UsersScreen} />
-        <Stack.Screen name="BeerDetail" component={BeerDetailScreen} />
-        <Stack.Screen name="EventPhoto" component={EventPhotoScreen} />
-        <Stack.Screen name="EventPhotoView" component={EventPhotoScreen} />
-        <Stack.Screen name="EventSummary" component={EventSummaryScreen} options={{ title: 'Event Summary' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <WebSocketProvider>
+      <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'Login'}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+          />
+          <Stack.Screen
+            name="Beers"
+            component={BeersScreen}
+            options={{ title: 'Beers List' }}
+          />
+          <Stack.Screen
+            name="BarsEvents"
+            component={BarsEventsScreen}
+            options={{ title: 'Bar Events List' }}
+          />
+          <Stack.Screen
+            name="Bars"
+            component={BarsScreen}
+            options={{ title: 'Bars List' }}
+          />
+          <Stack.Screen name="Users" component={UsersScreen} />
+          <Stack.Screen name="BeerDetail" component={BeerDetailScreen} />
+          <Stack.Screen name="EventPhoto" component={EventPhotoScreen} />
+          <Stack.Screen name="EventPhotoView" component={EventPhotoScreen} />
+          <Stack.Screen name="EventSummary" component={EventSummaryScreen} options={{ title: 'Event Summary' }} />
+          <Stack.Screen name="Feed" component={FeedScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </WebSocketProvider>
   );
 };
 

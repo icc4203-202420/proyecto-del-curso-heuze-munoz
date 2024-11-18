@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import * as SecureStore from 'expo-secure-store'; // Reemplazando AsyncStorage por SecureStore
+import * as SecureStore from 'expo-secure-store';
 import { EXPO_PUBLIC_API_BASE_URL } from '@env';
 
 function BeersScreen() {

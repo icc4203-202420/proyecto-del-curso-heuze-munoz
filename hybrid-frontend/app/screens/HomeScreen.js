@@ -48,6 +48,19 @@ const HomeScreen = () => {
     }
   };
 
+  const handleFeedClick = async () => {
+    const token = await SecureStore.getItemAsync('authToken');
+    const isAuthenticated = !!token;
+
+    if (!isAuthenticated) {
+      Alert.alert('Attention', 'You must be logged in to see the feed.', [
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
+      ]);
+    } else {
+      navigation.navigate('Feed');
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -85,6 +98,13 @@ const HomeScreen = () => {
               <List.Item
                 title="Events"
                 left={() => <Ionicons name="calendar" size={24} color="#6A0DAD" />}
+                titleStyle={styles.listItemText}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleFeedClick} style={styles.listItem}>
+              <List.Item
+                title="Feed"
+                left={() => <Ionicons name="tv-outline" size={24} color="#6A0DAD" />}
                 titleStyle={styles.listItemText}
               />
             </TouchableOpacity>
