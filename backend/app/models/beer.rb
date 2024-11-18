@@ -12,7 +12,8 @@ class Beer < ApplicationRecord
   validates :name, presence: true
   validates :image, content_type: { in: ['image/png', 'image/jpg', 'image/jpeg'],
                                     message: 'must be a valid image format' },
-                    size: { less_than: 5.megabytes }       
+                    size: { less_than: 5.megabytes }
+
   def thumbnail
     image.variant(resize_to_limit: [200, 200]).processed
   end

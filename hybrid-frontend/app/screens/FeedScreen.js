@@ -10,7 +10,12 @@ const FeedScreen = () => {
   const navigation = useNavigation();
 
   const applyFilter = () => {
-    setFilters({ type: filterType, value: filterValue });
+    const validTypes = ['friend', 'beer'];
+    if (validTypes.includes(filterType.toLowerCase())) {
+      setFilters({ type: filterType.toLowerCase(), value: filterValue });
+    } else {
+      alert('Invalid filter type. Choose from friend or beer.');
+    }
   };
 
   const clearFilter = () => {
@@ -20,35 +25,34 @@ const FeedScreen = () => {
   };
 
   const renderFeedItem = ({ item }) => {
-    return (
-      <View style={styles.feedItem}>
-        <Text>{item.type === 'event_picture' ? 'Event' : 'Review'}</Text>
-        <Text>{item.user.handle} {item.type === 'event_picture' ? 'posted a photo' : 'reviewed a beer'}</Text>
-        {item.type === 'event_picture' && (
+    if (item.type === 'review') {
+      return (
+        <View style={styles.feedItem}>
+          <Text style={styles.feedType}>Beer Review</Text>
+          <Text style={styles.feedUser}>{item.review.user.handle} reviewed a beer</Text>
+          <Text style={styles.feedDetails}>Rating: {item.review.rating} / 5</Text>
+          <Text style={styles.feedDetails}>Beer: {item.review.beer.name}</Text>
+          <Text style={styles.feedDetails}>Description: {item.review.text}</Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate('EventPhotoView', { eventId: item.event.id, eventPictureId: item.id })}
+            style={styles.button}
+            onPress={() => navigation.navigate('BeerDetail', { beerId: item.review.beer.id })}
           >
-            <Text style={styles.linkText}>View Event</Text>
+            <Text style={styles.buttonText}>View Beer</Text>
           </TouchableOpacity>
-        )}
-        {item.type === 'review' && (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Bars', { barId: item.bar.id })}
-          >
-            <Text style={styles.linkText}>View Bar</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
+        </View>
+      );
+    } else {
+      return null; // Handle other types if necessary
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text>Connection Status: {isConnected ? 'Connected' : 'Disconnected'}</Text>
+      <Text style={styles.status}>Connection Status: {isConnected ? 'Connected' : 'Disconnected'}</Text>
       <View style={styles.filterContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Filter Type (friend, bar, country, beer)"
+          placeholder="Filter Type (friend, beer)"
           value={filterType}
           onChangeText={setFilterType}
         />
@@ -59,16 +63,17 @@ const FeedScreen = () => {
           onChangeText={setFilterValue}
         />
         <TouchableOpacity style={styles.button} onPress={applyFilter}>
-          <Text>Apply Filter</Text>
+          <Text style={styles.buttonText}>Apply Filter</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={clearFilter}>
-          <Text>Clear Filter</Text>
+          <Text style={styles.buttonText}>Clear Filter</Text>
         </TouchableOpacity>
       </View>
       <FlatList
         data={feed}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
+        keyExtractor={(item, index) => `${item.type}-${item.review.id}-${index}`}
         renderItem={renderFeedItem}
+        inverted // To show the latest items at the top
       />
     </View>
   );
@@ -85,10 +90,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
+    backgroundColor: '#fff',
   },
-  linkText: {
-    color: 'blue',
+  feedType: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  feedUser: {
+    fontSize: 14,
+    marginVertical: 4,
+  },
+  feedDetails: {
+    fontSize: 14,
+    marginVertical: 2,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
     marginTop: 8,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#fff',
   },
   filterContainer: {
     marginBottom: 16,
@@ -100,12 +124,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
   },
-  button: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    marginBottom: 8,
-    alignItems: 'center',
-    borderRadius: 8,
+  status: {
+    marginBottom: 16,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

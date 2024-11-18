@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
+      resources :feeds, only: [:index]
       post 'users/update_device_token', to: 'users#update_device_token'
       post 'users/:id/send_notification', to: 'users#send_notification'
       resources :countries, only: [:index]
