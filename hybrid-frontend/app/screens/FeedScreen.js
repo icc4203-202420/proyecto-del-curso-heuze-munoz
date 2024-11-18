@@ -1,28 +1,14 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { WebSocketContext } from '../utility/WebSocketProvider';
 import { useNavigation } from '@react-navigation/native';
 
 const FeedScreen = () => {
-  const { feed, setFilters, isConnected } = useContext(WebSocketContext);
-  const [filterType, setFilterType] = useState('');
-  const [filterValue, setFilterValue] = useState('');
+  const { feed, isConnected } = useContext(WebSocketContext);
   const navigation = useNavigation();
 
-  const applyFilter = () => {
-    const validTypes = ['friend', 'beer'];
-    if (validTypes.includes(filterType.toLowerCase())) {
-      setFilters({ type: filterType.toLowerCase(), value: filterValue });
-    } else {
-      alert('Invalid filter type. Choose from friend or beer.');
-    }
-  };
-
-  const clearFilter = () => {
-    setFilters(null);
-    setFilterType('');
-    setFilterValue('');
-  };
+  // Sort the feed array by `created_at` in descending order (newer first)
+  const sortedFeed = [...feed].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const renderFeedItem = ({ item }) => {
     if (item.type === 'review') {
@@ -71,7 +57,7 @@ const FeedScreen = () => {
     <View style={styles.container}>
       <Text style={styles.status}>Connection Status: {isConnected ? 'Connected' : 'Disconnected'}</Text>
       <FlatList
-        data={feed}
+        data={sortedFeed}
         keyExtractor={(item, index) => {
           if (item.type === 'review') {
             return `review-${item.review.id}-${index}`;
@@ -82,8 +68,17 @@ const FeedScreen = () => {
           }
         }}
         renderItem={renderFeedItem}
-        inverted
+        initialScrollIndex={0}
+        getItemLayout={(data, index) => ({
+          length: 100,
+          offset: 100 * index,
+          index,
+        })}
+        onScrollToIndexFailed={(error) => {
+          console.warn('Scroll failed:', error);
+        }}
       />
+
     </View>
   );
 };
@@ -122,16 +117,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-  },
-  filterContainer: {
-    marginBottom: 16,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 8,
-    marginBottom: 8,
-    borderRadius: 8,
   },
   status: {
     marginBottom: 16,
