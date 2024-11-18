@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, Image } from 'react-native';
 import { WebSocketContext } from '../utility/WebSocketProvider';
 import { useNavigation } from '@react-navigation/native';
 
@@ -41,6 +41,27 @@ const FeedScreen = () => {
           </TouchableOpacity>
         </View>
       );
+    } else if (item.type === 'event_picture') {
+      return (
+        <View style={styles.feedItem}>
+          <Text style={styles.feedType}>Event Picture</Text>
+          <Text style={styles.feedUser}>{item.event_picture.user.handle} posted an event picture</Text>
+          <Text style={styles.feedDetails}>Description: {item.event_picture.description}</Text>
+          {item.event_picture.image_url && (
+            <Image
+              source={{ uri: item.event_picture.image_url }}
+              style={styles.eventImage}
+              resizeMode="cover"
+            />
+          )}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('EventPhotoView', { eventPictureId: item.event_picture.id })}
+          >
+            <Text style={styles.buttonText}>View Photo</Text>
+          </TouchableOpacity>
+        </View>
+      );
     } else {
       return null; // Handle other types if necessary
     }
@@ -71,9 +92,17 @@ const FeedScreen = () => {
       </View>
       <FlatList
         data={feed}
-        keyExtractor={(item, index) => `${item.type}-${item.review.id}-${index}`}
+        keyExtractor={(item, index) => {
+          if (item.type === 'review') {
+            return `review-${item.review.id}-${index}`;
+          } else if (item.type === 'event_picture') {
+            return `event_picture-${item.event_picture.id}-${index}`;
+          } else {
+            return `item-${index}`;
+          }
+        }}
         renderItem={renderFeedItem}
-        inverted // To show the latest items at the top
+        inverted
       />
     </View>
   );
@@ -128,6 +157,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  eventImage: {
+    width: '100%',
+    height: 200,
+    marginTop: 8,
+    borderRadius: 8,
   },
 });
 

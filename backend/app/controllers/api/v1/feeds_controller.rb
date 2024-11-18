@@ -11,7 +11,7 @@ module API
                         .limit(50)
 
         # Obtener las fotos de eventos de los amigos, incluyendo asociaciones necesarias
-        event_pictures = EventPicture.includes(:user, event: { bar: :country })
+        event_pictures = EventPicture.includes(:user, :event)
                                      .where(user_id: friends_ids)
                                      .order(created_at: :desc)
                                      .limit(50)
@@ -69,16 +69,6 @@ module API
               bar: {
                 id: event_picture.event.bar.id,
                 name: event_picture.event.bar.name,
-                country: {
-                  id: event_picture.event.bar.country.id,
-                  name: event_picture.event.bar.country.name
-                },
-                address: {
-                  line1: event_picture.event.bar.address.line1,
-                  line2: event_picture.event.bar.address.line2,
-                  city: event_picture.event.bar.address.city
-
-                }
               }
             },
             user: {
